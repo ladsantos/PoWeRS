@@ -9,9 +9,9 @@ class line(object):
     def __init__(self,params):
 
         # Modelling parameters
-        self.xshift = params[4]        # shift on the x-axis
-        self.wl_start = params[2]      # lower-limit on wavelengths for the analysis
-        self.wl_end = params[3]        # upper-limit on wavelengths for the analysis
+        self.xshift = params[9,1]        # shift on the x-axis
+        self.wl_start = params[0,1]      # lower-limit on wavelengths for the analysis
+        self.wl_end = params[1,1]        # upper-limit on wavelengths for the analysis
 
         # Getting the numbers for the plot
         self.data = np.loadtxt('spectrum.dat')
