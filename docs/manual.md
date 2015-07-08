@@ -50,20 +50,33 @@ A correct installation of SM on an Ubuntu-14.04-based Linux distribution should 
 
 * Untar the sm.tar file to a known location (hereafter SM source folder), preferably one which does not require superuser privileges
 * Go to the SM source folder and run set_opts
+
     chmod +rwx set_opts
     /.set_opts
+
 * When it asks for a C compiler, say "n" and set the following:
+
     gcc-4.8 -Wall -Dlinux -DNEED_SWAP
+
 * When it asks for a location for the SM files, choose 
+
     /usr/local
+
 * Once you set those options, open the /src/makefile and change XLIB11 to this option:
+
     XLIB11 = -L/usr/include/X11 -lX11
+
 * Now, open the options.h file, and change all
+
     FORTRAN_APPEND __
+
   instances to
+
     FORTRAN_APPEND _
+
   (just one underscore instead of two)
 * Now, go back to the previous directory and
+
     make
     sudo make install
     
