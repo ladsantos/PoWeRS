@@ -58,15 +58,15 @@ A correct installation of SM on an Ubuntu-14.04-based Linux distribution should 
 
     gcc-4.8 -Wall -Dlinux -DNEED_SWAP
 
-* When it asks for a location for the SM files, choose 
+4) When it asks for a location for the SM files, choose 
 
     /usr/local
 
-* Once you set those options, open the /src/makefile and change XLIB11 to this option:
+5) Once you set those options, open the /src/makefile and change XLIB11 to this option:
 
     XLIB11 = -L/usr/include/X11 -lX11
 
-* Now, open the options.h file, and change all
+6) Now, open the options.h file, and change all
 
     FORTRAN_APPEND __
 
@@ -75,30 +75,31 @@ A correct installation of SM on an Ubuntu-14.04-based Linux distribution should 
     FORTRAN_APPEND _
 
   (just one underscore instead of two)
-* Now, go back to the previous directory and
+  
+7) Now, go back to the previous directory and
 
     make
     sudo make install
     
-Good. Now that we have SM correctly installed, it's time to setup MOOG. Download it at http://www.as.utexas.edu/~chris/MOOGJUL2014.tar.gz, untar it to a known location. We are going to install the silent version. So, open the file Moogsilent.f, and set 
+8) Good. Now that we have SM correctly installed, it's time to setup MOOG. Download it at http://www.as.utexas.edu/~chris/MOOGJUL2014.tar.gz, untar it to a known location. We are going to install the silent version. So, open the file Moogsilent.f, and set 
 
     moogpath = '/whatever/path/you/installed/moogjul2014'
     machine = 'pcl'
     
-Then, open the Makefile.rh64silent file, and set
+9) Then, open the Makefile.rh64silent file, and set
 
     X11LIB = /usr/lib/gcc/x86_64-linux-gnu/4.8
     SMLIB = /opt/local/lib
     
-Still on Makefile.rh64silent, change the lines 51 to 53 to
+10) Still on Makefile.rh64silent, change the lines 51 to 53 to
 
     MOOGSILENT:  $(OBJECTS);
 	    $(FC) $(OBJECTS) -o MOOGSILENT -L$(SMLIB) -lplotsub -ldevices -lutils \
 	    -L$(X11LIB) -lX11
     
-And finally, add "Blankstring.o" and "Getsyns.o" to the list of objects (lines 5 to 22).
+11) And finally, add "Blankstring.o" and "Getsyns.o" to the list of objects (lines 5 to 22).
 
-MOOG should be compile-able now. In the command line, type
+12) MOOG should be compile-able now. In the command line, type
 
     make -f Makefile.rh64silent
     
