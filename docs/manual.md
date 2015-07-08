@@ -49,6 +49,7 @@ Notes on SM and MOOG installation (Linux)
 A correct installation of SM on an Ubuntu-14.04-based Linux distribution should be done as such:
 
 1) Untar the sm.tar file to a known location (hereafter SM source folder), preferably one which does not require superuser privileges
+
 2) Go to the SM source folder and run set_opts
 
     chmod +rwx set_opts
