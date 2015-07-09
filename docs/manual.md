@@ -14,6 +14,7 @@ These are the required programs/packages to run pwoogs:
 
 These other programs/packages are highly recommended:
 
+* pip: used to (un-)install pwoogs
 * makekurucz2004: used to create interpolations of the atmosphere models from Castelli & Kurucz 2004. I'm looking at the availability of this program. More info in the next versions of this manual.
 
 Installation
