@@ -6,9 +6,15 @@ import logging
 import numpy as np
 import plotter
 
+"""
+This code is used to create a MOOG's driver file and run MOOGSILENT. 
+It is optimized for single-line analysis. Usage for a large region
+of the spectrum, with many lines, has not been tested.
+"""
+
 class driver(object):
     
-    def __init__(self,params):
+    def __init__(self,params,**kwargs):
         
         # Output files
         self.standard_out = 'vm_long.out'
@@ -86,11 +92,19 @@ class driver(object):
 
 class run(object):
     
-    def __init__(self):
+    def __init__(self, **kwargs):
+        
+        # Setting default kwargs parameters
+        if ('silent' in kwargs):
+            self.silent = kwargs['silent']
+        else:
+            self.silent = False
+        
         self.params = np.genfromtxt('params.txt',usecols=(1,2),skip_header=1,
                                     missing_values='None',filling_values=0)            
         self.d = driver(self.params).create_batch()
         os.system('MOOGSILENT > moog.log 2>&1')
 
         # Plotting
-        self.p = plotter.line(self.params).plot()
+        if self.silent == False:
+            self.p = plotter.line(self.params).plot()
