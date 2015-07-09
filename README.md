@@ -1,6 +1,6 @@
 # pwoogs
 
-pwoogs is a Python wrapper for MOOG synth, an application widely used in astronomy for synthesis of spectral lines. I recently started working on this after being fed up with the usual interface and plotting of MOOG. The code is very bare at the moment, but I'll be working on improving it, adding more features and a proper documentation as time goes on.
+pwoogs is a Python wrapper for MOOG synth, an application widely used in astronomy for synthesis of spectral lines. I recently started working on this after being fed up with the usual interface and plotting of MOOG. The code is very bare bones at the moment, but I'll be working on improving it, adding more features and a proper documentation as time goes on.
 
 Dependencies
 ------------
@@ -10,11 +10,14 @@ Unfortunately, pwoogs depends on a full installation of MOOGSILENT, which does r
 * MOOG silent (therefore, also superMONGO, Fortran and C compilers)
 * numpy
 * matplotlib
+* pip (optional: only for [un-]installation)
 
 If you have problems installing SM or MOOG, which you most certainly will, take a look at the documentation of pwoogs. There is a bunch of tips there.
 
-Installation
+(Un-)Installation
 ------------
+
+You might need superuser privileges to perform (un-)installation. If you have python installed through Anaconda, you won't need them.
 
 Once you have the dependencies installed, you should declare the path of the MOOGSILENT installation to your system. One way to do this, for example, on Debian-based systems, is to open your .bashrc profile and put this line inside it:
 
@@ -29,7 +32,15 @@ After that, running pwoogs should be as simple as:
     from pwoogs import moog
     m = moog.run()
     
+You can run pwoogs in silent mode (no plot) by using (contrary to the original MOOG, you don't need to compile a different version of the program! Horray!)
+
+   m = moog.run(silent=True)
+
+You can uninstall pwoogs simply by entering the following line on your terminal:
+
+    pip uninstall pwoogs
+    
 Version
 ------------
 
-Alpha build 0.1
+pwoogs 0.1 (Alpha) build 1507
