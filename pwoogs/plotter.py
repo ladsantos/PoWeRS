@@ -13,14 +13,21 @@ class line(object):
     def __init__(self,params):
 
         # Modelling parameters
-        self.xshift = params[9,1]
+        self.c = 2.998E18
+        self.wlshift = params[9,1]
+        self.vshift = params[9,0]
+        self.yadd = params[10,0]
+        self.ymult = params[10,1]
         self.wl_start = params[0,1]
         self.wl_end = params[1,1]
 
         # Getting the numbers for the plot
         self.data = np.loadtxt('spectrum.dat')
         self.model = np.loadtxt('vm_smooth.out', skiprows=2)
-        self.data[:,0] += self.xshift
+        self.data[:,0] = self.data[:,0] + self.wlshift + self.data[:,0]*(
+            self.c/(self.vshift*1E13+self.c)-1.0)
+        self.data[:,1] = self.data[:,1] + self.yadd - \
+            self.data[:,1]*(1.0-self.ymult)
 
     # Function that finds the index of a target value inside an array arr
     def find_index(self,target,arr):
