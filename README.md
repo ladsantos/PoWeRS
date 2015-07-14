@@ -34,12 +34,17 @@ After that, running pwoogs should be as simple as:
     
 You can run pwoogs in silent mode (no plot) by using (contrary to the original MOOG, you don't need to compile a different version of the program! Horray!)
 
-   m = moog.run(silent=True)
+    m = moog.run(silent=True)
 
 You can uninstall pwoogs simply by entering the following line on your terminal:
 
     pip uninstall pwoogs
     
+Latest additions and corrections
+------------
+
+* plotter, now, actually do y-axis shifts instead of nothing; it is also implemented in a way to do the multiplicative shifts similar to MOOG
+
 Version
 ------------
 
