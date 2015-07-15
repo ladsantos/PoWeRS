@@ -27,7 +27,7 @@ class line(object):
         self.data[:,0] = self.data[:,0] + self.wlshift - self.data[:,0]*(
             self.c/(self.vshift*1E13+self.c)-1.0)
         self.data[:,1] = self.data[:,1] + self.yadd - \
-            self.data[:,1]*(1.0-self.ymult)
+            self.data[:,1]*self.ymult
 
     # Function that finds the index of a target value inside an array arr
     def find_index(self,target,arr):
