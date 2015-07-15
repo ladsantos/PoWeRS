@@ -43,7 +43,7 @@ You can uninstall pwoogs simply by entering the following line on your terminal:
 Latest additions and corrections
 ------------
 
-* plotter, now, actually do y-axis shifts instead of nothing; it is also implemented in a way to do the multiplicative shifts similar to MOOG
+* plotter, now, actually do y-axis shifts instead of nothing; implementation might not be similar to MOOG's
 
 Version
 ------------
