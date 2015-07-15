@@ -24,7 +24,7 @@ class line(object):
         # Getting the numbers for the plot
         self.data = np.loadtxt('spectrum.dat')
         self.model = np.loadtxt('vm_smooth.out', skiprows=2)
-        self.data[:,0] = self.data[:,0] + self.wlshift + self.data[:,0]*(
+        self.data[:,0] = self.data[:,0] + self.wlshift - self.data[:,0]*(
             self.c/(self.vshift*1E13+self.c)-1.0)
         self.data[:,1] = self.data[:,1] + self.yadd - \
             self.data[:,1]*(1.0-self.ymult)
