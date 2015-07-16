@@ -45,6 +45,12 @@ Latest additions and corrections
 
 * plotter, now, actually do y-axis shifts instead of nothing; implementation might not be similar to MOOG's
 
+To-do list
+------------
+
+* A package to perform stellar parameter estimatives, particularly projected rotation (which is part of my thesis)
+* Undo the need of having some files already created (for instance, batch.par)
+
 Version
 ------------
 
