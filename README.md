@@ -49,6 +49,7 @@ To-do list
 ------------
 
 * A package to perform stellar parameter estimatives, particularly projected rotation (which is part of my thesis)
+* Creating an utils package that won't need a parameter to be instantiated (it is bothersome to use utilities from plotter or moog because they require init parameters)
 * Undo the need of having some files already created (for instance, batch.par)
 
 Version

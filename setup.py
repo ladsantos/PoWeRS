@@ -8,7 +8,7 @@ config = {
     'author': 'Leonardo dos Santos',
     'download_url': 'https://github.com/laugustogs/pwoogs',
     'author_email': 'leonardoags@usp.br',
-    'version': '0.1.150716',
+    'version': '0.1.150717',
     'install_requires': ['nose','numpy','scipy'],
     'packages': ['pwoogs'],
     'name': 'pwoogs'
