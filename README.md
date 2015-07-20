@@ -1,6 +1,6 @@
 # pwoogs
 
-pwoogs is a Python wrapper for MOOG synth, an application widely used in astronomy for synthesis of spectral lines. I recently started working on this after being fed up with the usual interface and plotting of MOOG. The code is very bare bones at the moment, but I'll be working on improving it, adding more features and a proper documentation as time goes on.
+pwoogs is a Python wrapper for MOOG synth, an application widely used in astronomy for synthesis of spectral lines. I recently started working on this after being fed up with the usual interface and plotting of MOOG. The code is very bare bones at the moment, but I'll be working on improving it, adding more features and a proper documentation as time goes on. Now it has a rotation estimator!
 
 Dependencies
 ------------
@@ -11,6 +11,7 @@ Unfortunately, pwoogs depends on a full installation of MOOGSILENT, which does r
 * numpy
 * matplotlib
 * pip (optional: only for [un-]installation)
+* crepe (optional: only if you plan to use the parameter estimation routines)
 
 If you have problems installing SM or MOOG, which you most certainly will, take a look at the documentation of pwoogs. There is a bunch of tips there.
 
@@ -43,12 +44,12 @@ You can uninstall pwoogs simply by entering the following line on your terminal:
 Latest additions and corrections
 ------------
 
-* plotter, now, actually do y-axis shifts instead of nothing; implementation might not be similar to MOOG's
+* rotation_CE: estimates the projected (v sin i) of a star based on a spectral line; it uses the cross-entropy method to do a completely objective optimization
 
 To-do list
 ------------
 
-* A package to perform stellar parameter estimatives, particularly projected rotation (which is part of my thesis)
+* Add default parameters to the rotation_CE estimation package
 * Creating an utils package that won't need a parameter to be instantiated (it is bothersome to use utilities from plotter or moog because they require init parameters)
 * Undo the need of having some files already created (for instance, batch.par)
 
