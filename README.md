@@ -44,7 +44,7 @@ You can uninstall pwoogs simply by entering the following line on your terminal:
 Latest additions and corrections
 ------------
 
-* rotation_CE: estimates the projected (v sin i) of a star based on a spectral line; it uses the cross-entropy method to do a completely objective optimization
+* estimate package now has optional parameters
 
 To-do list
 ------------
