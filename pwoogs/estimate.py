@@ -26,37 +26,57 @@ class rotation(object):
     #  [ abund guess min, abund guess max ]]
     # macro_v is the macroturbulence velocity
     # Z is the atomic number of the chemical element that produces the line
-    def __init__(self,spec_window,x_vel,x_wl,y_add,y_mult,macro_v,Z):
+    def __init__(self,spec_window,macro_v,Z,**kwargs):
+        
+        # Default optional parameters:
+        
+        if ('x_vel' in kwargs):
+            self.vshift = kwargs['x_vel']
+        else:
+            self.vshift = 0.0
+        
+        if ('x_wl' in kwargs):
+            self.wlshift = kwargs['x_wl']
+        else:
+            self.wlshift = 0.0
+        
+        if ('y_add' in kwargs):
+            self.yadd = kwargs['y_add']
+        else:
+            self.yadd = 0.0
+            
+        if ('y_mult' in kwargs):
+            self.ymult = kwargs['y_mult']
+        else:
+            self.ymult = 0.0
         
         self.c = 2.998E18
         self.am = utils.arr_manage()
         self.n = normal.optimize()
         self.spec = spec_window
-        self.vshift = x_vel
-        self.wlshift = x_wl
-        self.yadd = y_add
-        self.ymult = y_mult
+        #self.vshift = x_vel
+        #self.wlshift = x_wl
+        #self.yadd = y_add
+        #self.ymult = y_mult
         self.m_v = macro_v
         self.Z = Z
         self.data = np.loadtxt('spectrum.dat')
         self.data[:,0] = self.data[:,0] + self.wlshift - self.data[:,0]*(
             self.c/(self.vshift*1E13+self.c)-1.0)
-        self.data[:,1] = self.data[:,1] + self.yadd - \
-            self.data[:,1]*self.ymult
+        self.data[:,1] = self.data[:,1]*self.ymult + self.yadd
         self.data_target = self.am.x_set_limits(self.spec[0],self.spec[1],self.data)
         
     # Function that writes to params.txt
     def write_params(self,log_rot_v,abund):
         
         self.rot_v = 10**log_rot_v
-        #print self.rot_v
         with open('params.txt','w') as f:
             f.truncate()
             f.write(
                 '''Parameter       Value 1         Value 2         Comment
 l_limit         %.1f            %.1f            Lower limits: 1 = synthesis, 2 = plotting, angstrons
 u_limit         %.1f            %.1f            Upper limits: 1 = synthesis, 2 = plotting, angstrons
-synth_pars      0.01            2.0             1 = Step size of the synthesis, 2 = wavelength point to consider opacity contributions from neighboring transitions
+synth_pars      0.005            2.0             1 = Step size of the synthesis, 2 = wavelength point to consider opacity contributions from neighboring transitions
 atmosphere      1               None            See description on WRITEMOOG.ps
 molecules       1               None            See description on WRITEMOOG.ps
 trudamp         1               None            See description on WRITEMOOG.ps
@@ -90,20 +110,36 @@ abund           %i              %.3f'''
         self.model = np.loadtxt('vm_smooth.out', skiprows=2)
         self.model_interp = np.interp(self.data_target[:,0],
                                       self.model[:,0],self.model[:,1])
-        return np.sum((1.0/self.data_target[:,1])**0.1*(self.data_target[:,1]-\
+        return np.sum((1.0/self.data_target[:,1])**self.gamma*(self.data_target[:,1]-\
             self.model_interp[:])**2)
     
-    def find(self,guess_min,guess_max):
+    def find(self,guess_min,guess_max,**kwargs):
+        
+        if ('alpha' in kwargs):
+            self.alpha = kwargs['alpha']
+        else:
+            self.alpha = 0.5
+        
+        if ('c_limit' in kwargs):
+            self.c_limit = kwargs['c_limit']
+        else:
+            self.c_limit = 1E-2
+        
+        if ('gamma' in kwargs):
+            self.gamma = kwargs['gamma']
+        else:
+            self.gamma = 1.0
         
         self.p_min = guess_min
         self.p_max = guess_max
         self.p_mean = (self.p_min+self.p_max)/2.
         self.p_sigma = (self.p_max-self.p_min)/2.
-        self.n = normal.optimize()
+        #self.n = normal.optimize()
         
         # The estimation by CREPE is done in just one line:
         self.new_p_mean,self.new_p_sigma = self.n.estimate(self.perf,\
-            self.p_mean,self.p_sigma,c_limit=1E-2,verbose=True,alpha=0.1)
+            self.p_mean,self.p_sigma,c_limit=self.c_limit,verbose=True,\
+                alpha=self.alpha)
 
         # Printing and plotting the results
         print 'log_v_rot = %.3f p/m %.3f' % (self.new_p_mean[0],\
