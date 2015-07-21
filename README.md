@@ -49,8 +49,8 @@ Latest additions and corrections
 To-do list
 ------------
 
-* Documentation for rotation_CE
-* Add default parameters to the rotation_CE estimation package
+* Documentation for estimate
+* Add default parameters to estimate package
 * Creating an utils package that won't need a parameter to be instantiated (it is bothersome to use utilities from plotter or moog because they require init parameters)
 * Undo the need of having some files already created (for instance, batch.par)
 
