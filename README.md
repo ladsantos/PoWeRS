@@ -45,12 +45,12 @@ Latest additions and corrections
 ------------
 
 * estimate package now has optional parameters
+* estimate now optimizes for the wavelength shift
 
 To-do list
 ------------
 
 * Documentation for estimate
-* Add default parameters to estimate package
 * Creating an utils package that won't need a parameter to be instantiated (it is bothersome to use utilities from plotter or moog because they require init parameters)
 * Undo the need of having some files already created (for instance, batch.par)
 
