@@ -24,9 +24,9 @@ class rotation(object):
     # par is the a 2x2 numpy array containing:
     # [[ veloc guess min, veloc guess max ],
     #  [ abund guess min, abund guess max ]]
-    # macro_v is the macroturbulence velocity
+    # v_macro is the macroturbulence velocity
     # Z is the atomic number of the chemical element that produces the line
-    def __init__(self,spec_window,macro_v,Z,**kwargs):
+    def __init__(self,spec_window,v_macro,Z,**kwargs):
         
         # Default optional parameters:
         
@@ -34,11 +34,6 @@ class rotation(object):
             self.vshift = kwargs['x_vel']
         else:
             self.vshift = 0.0
-        
-        if ('x_wl' in kwargs):
-            self.wlshift = kwargs['x_wl']
-        else:
-            self.wlshift = 0.0
         
         if ('y_add' in kwargs):
             self.yadd = kwargs['y_add']
@@ -54,20 +49,11 @@ class rotation(object):
         self.am = utils.arr_manage()
         self.n = normal.optimize()
         self.spec = spec_window
-        #self.vshift = x_vel
-        #self.wlshift = x_wl
-        #self.yadd = y_add
-        #self.ymult = y_mult
-        self.m_v = macro_v
+        self.v_m = v_macro
         self.Z = Z
-        self.data = np.loadtxt('spectrum.dat')
-        self.data[:,0] = self.data[:,0] + self.wlshift - self.data[:,0]*(
-            self.c/(self.vshift*1E13+self.c)-1.0)
-        self.data[:,1] = self.data[:,1]*self.ymult + self.yadd
-        self.data_target = self.am.x_set_limits(self.spec[0],self.spec[1],self.data)
         
     # Function that writes to params.txt
-    def write_params(self,log_rot_v,abund):
+    def write_params(self,log_rot_v,abund,wlshift):
         
         self.rot_v = 10**log_rot_v
         with open('params.txt','w') as f:
@@ -91,8 +77,8 @@ velocities      %.2f            %.3f            1 = macroturbulence, 2 = rotatio
 nabunds         1               None            # of elements
 abund           %i              %.3f'''
                 % (self.spec[0],self.spec[0],self.spec[1],self.spec[1],
-                   self.vshift,self.wlshift,self.yadd,self.ymult,
-                   self.m_v,self.rot_v,
+                   self.vshift,wlshift,self.yadd,self.ymult,
+                   self.v_m,self.rot_v,
                    self.Z,abund)
                 )
                 
@@ -105,8 +91,18 @@ abund           %i              %.3f'''
     '''
     def perf(self,p):
         
-        foo = self.write_params(p[0],p[1])
+        # Applying corrections to the observed spectrum
+        self.data = np.loadtxt('spectrum.dat')
+        self.data[:,0] = self.data[:,0] + p[2] - self.data[:,0]*(
+            self.c/(self.vshift*1E13+self.c)-1.0)
+        self.data[:,1] = self.data[:,1]*self.ymult + self.yadd
+        self.data_target = self.am.x_set_limits(self.spec[0],self.spec[1],self.data)
+        
+        # Running MOOGSILENT
+        self.write_params(p[0],p[1],p[2])
         m = moog.run(silent=True)
+        
+        # Evaluating the performance
         self.model = np.loadtxt('vm_smooth.out', skiprows=2)
         self.model_interp = np.interp(self.data_target[:,0],
                                       self.model[:,0],self.model[:,1])
@@ -134,7 +130,6 @@ abund           %i              %.3f'''
         self.p_max = guess_max
         self.p_mean = (self.p_min+self.p_max)/2.
         self.p_sigma = (self.p_max-self.p_min)/2.
-        #self.n = normal.optimize()
         
         # The estimation by CREPE is done in just one line:
         self.new_p_mean,self.new_p_sigma = self.n.estimate(self.perf,\
@@ -144,8 +139,11 @@ abund           %i              %.3f'''
         # Printing and plotting the results
         print 'log_v_rot = %.3f p/m %.3f' % (self.new_p_mean[0],\
             self.new_p_sigma[0])
+        print 'wlshift = %.4f p/m %.4f' % (self.new_p_mean[2],\
+            self.new_p_sigma[2])
         print 'abund = %.3f p/m %.3f' % (self.new_p_mean[1],\
             self.new_p_sigma[1])
 
-        self.write_params(self.new_p_mean[0],self.new_p_mean[1])
+        self.write_params(self.new_p_mean[0],self.new_p_mean[1],\
+            self.new_p_mean[2])
         m = moog.run()
