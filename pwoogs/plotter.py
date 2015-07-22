@@ -20,14 +20,16 @@ class line(object):
         self.ymult = params[10,1]
         self.wl_start = params[0,1]
         self.wl_end = params[1,1]
+        self.v_rot = params[13,1]
+        self.v_macro = params[13,0]
+        self.fwhm_gauss = params[11,0]
 
         # Getting the numbers for the plot
         self.data = np.loadtxt('spectrum.dat')
         self.model = np.loadtxt('vm_smooth.out', skiprows=2)
         self.data[:,0] = self.data[:,0] + self.wlshift - self.data[:,0]*(
             self.c/(self.vshift*1E13+self.c)-1.0)
-        self.data[:,1] = self.data[:,1] + self.yadd - \
-            self.data[:,1]*self.ymult
+        self.data[:,1] = self.data[:,1]*self.ymult + self.yadd
 
     # Function that finds the index of a target value inside an array arr
     def find_index(self,target,arr):
@@ -55,6 +57,10 @@ class line(object):
         ax.plot(self.data_target[:,0],self.data_target[:,1],'.')
         ax.plot(self.model_target[:,0],self.model_target[:,1])
         ax.ticklabel_format(useOffset=False)
+        plt.title(
+            r'$v \sin{i} = %.2f$, $v_{macro} = %.2f$, $FWHM_{gauss} = %.3f$' \
+                % (self.v_rot,self.v_macro,self.fwhm_gauss)
+            )
         plt.xlabel(r'$\lambda$ ($\AA$)')
         plt.ylabel(r'$I_\lambda$')
         plt.show()
