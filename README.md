@@ -47,11 +47,19 @@ Latest additions and corrections
 * estimate package now has optional parameters
 * estimate now optimizes for the wavelength shift
 
+Known issues
+------------
+
+* The code produce no or wrong results when there are too many points on the spectrum (a few tens of thousands, maybe?). This is a problem with MOOG, specifically, and there is not much we can do about it, except spoon-feeding it a nice small array of points. See the to-do list.
+* The cross-entropy method can converge too fast sometimes. This is a particular trait of this method. When this happens, you'll either get a visually bad fit (local minimum?), or a RuntimeWarning by crepe, which essentially means there happened a division by zero when evaluating the new values for the optimization. The best way to deal with this is to use an appropriate smoothing factor (alpha and beta on crepe - see its [still incomplete] manual or try different values).
+
 To-do list
 ------------
 
 * Documentation for estimate
-* Creating an utils package that won't need a parameter to be instantiated (it is bothersome to use utilities from plotter or moog because they require init parameters)
+* A silent version of estimate
+* A routine that "pops" the target array from spectrum.dat if it has too many points, so MOOG doesn't freak out
+* Better error handling
 * Undo the need of having some files already created (for instance, batch.par)
 
 Version
