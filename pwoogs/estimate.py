@@ -111,10 +111,20 @@ abund           %i              %.3f'''
     
     def find(self,guess_min,guess_max,**kwargs):
         
+        if ('N' in kwargs):
+            self.N = kwargs['N']
+        else:
+            self.N = 100
+        
         if ('alpha' in kwargs):
             self.alpha = kwargs['alpha']
         else:
             self.alpha = 0.5
+
+        if ('beta' in kwargs):
+            self.beta = kwargs['beta']
+        else:
+            self.beta = 0.1
         
         if ('c_limit' in kwargs):
             self.c_limit = kwargs['c_limit']
@@ -134,7 +144,7 @@ abund           %i              %.3f'''
         # The estimation by CREPE is done in just one line:
         self.new_p_mean,self.new_p_sigma = self.n.estimate(self.perf,\
             self.p_mean,self.p_sigma,c_limit=self.c_limit,verbose=True,\
-                alpha=self.alpha)
+                alpha=self.alpha,beta=self.beta,N=self.N)
 
         # Printing and plotting the results
         print 'log_v_rot = %.3f p/m %.3f' % (self.new_p_mean[0],\
