@@ -44,21 +44,23 @@ You can uninstall pwoogs simply by entering the following line on your terminal:
 Latest additions and corrections
 ------------
 
-* estimate package now has optional parameters
+* added more optional parameters for estimate.find()
 * estimate now optimizes for the wavelength shift
+* utils now has a function named cut that "hard-pops" a range of values from a long datafile and writes to another, shorter one
 
 Known issues
 ------------
 
-* The code produce no or wrong results when there are too many points on the spectrum (a few tens of thousands, maybe?). This is a problem with MOOG, specifically, and there is not much we can do about it, except spoon-feeding it a nice small array of points. See the to-do list.
-* The cross-entropy method can converge too fast sometimes. This is a particular trait of this method. When this happens, you'll either get a visually bad fit (local minimum?), or a RuntimeWarning by crepe, which essentially means there happened a division by zero when evaluating the new values for the optimization. The best way to deal with this is to use an appropriate smoothing factor (alpha and beta on crepe - see its [still incomplete] manual or try different values).
+* The code produce no or wrong results when there are too many points on the spectrum (a few tens of thousands, maybe?). This is a problem with MOOG, specifically, and there is not much we can do about it, except spoon-feeding it a nice small array of points.
+* The cross-entropy method can converge too fast sometimes. This is a particular trait of this method. When this happens, you'll either get a visually bad fit (local minimum?), or a RuntimeWarning or IndexError by crepe, which essentially means there happened a division by zero when evaluating the new values for the optimization. The best way to deal with this is to use an appropriate smoothing factor (alpha and beta on crepe - see its [still incomplete] manual or try different values).
 
 To-do list
 ------------
 
 * Documentation for estimate
 * A silent version of estimate
-* A routine that "pops" the target array from spectrum.dat if it has too many points, so MOOG doesn't freak out
+* Pre-built functions for evaluating the performance, instead of the observed spectrum
+* An option that does not optimize for the wavelength shift
 * Better error handling
 * Undo the need of having some files already created (for instance, batch.par)
 
