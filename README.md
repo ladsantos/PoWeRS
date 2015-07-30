@@ -44,9 +44,8 @@ You can uninstall pwoogs simply by entering the following line on your terminal:
 Latest additions and corrections
 ------------
 
-* added more optional parameters for estimate.find()
-* estimate now optimizes for the wavelength shift
-* utils now has a function named cut that "hard-pops" a range of values from a long datafile and writes to another, shorter one
+* estimate does not optimize for the wavelength shift anymore
+* estimate now accepts a user-defined Gaussian smoothing and has more optional parameters
 
 Known issues
 ------------
@@ -60,7 +59,6 @@ To-do list
 * Documentation for estimate
 * A silent version of estimate
 * Pre-built functions for evaluating the performance, instead of the observed spectrum
-* An option that does not optimize for the wavelength shift
 * Better error handling
 * Undo the need of having some files already created (for instance, batch.par)
 
