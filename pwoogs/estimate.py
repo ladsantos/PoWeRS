@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import matplotlib.pyplot as plt
 from pwoogs import plotter,moog,utils
 from crepe import normal
 
@@ -26,7 +27,7 @@ class rotation(object):
     #  [ abund guess min, abund guess max ]]
     # v_macro is the macroturbulence velocity
     # Z is the atomic number of the chemical element that produces the line
-    def __init__(self,spec_window,gauss,v_macro,Z,**kwargs):
+    def __init__(self,spec_window,gauss,v_macro,line_file,line,**kwargs):
         
         # Default optional parameters:
         
@@ -50,13 +51,25 @@ class rotation(object):
         else:
             self.ymult = 0.0
         
+        if ('gamma' in kwargs):
+            self.gamma = kwargs['gamma']
+        else:
+            self.gamma = 1.0
+        
+        if ('perf_radius' in kwargs):
+            self.radius = kwargs['perf_radius']
+        else:
+            self.radius = 5
+        
         self.c = 2.998E18
         self.am = utils.arr_manage()
         self.n = normal.optimize()
         self.spec = spec_window
         self.gauss = gauss
         self.v_m = v_macro
-        self.Z = Z
+        self.lines = np.loadtxt(line_file,skiprows=1,usecols=(0,1))
+        self.Z = self.lines[line,1]
+        self.line_center = self.lines[line,0]
         
     # Function that writes to params.txt
     def write_params(self,log_rot_v,abund):
@@ -68,7 +81,7 @@ class rotation(object):
                 '''Parameter       Value 1         Value 2         Comment
 l_limit         %.1f            %.1f            Lower limits: 1 = synthesis, 2 = plotting, angstrons
 u_limit         %.1f            %.1f            Upper limits: 1 = synthesis, 2 = plotting, angstrons
-synth_pars      0.005            2.0             1 = Step size of the synthesis, 2 = wavelength point to consider opacity contributions from neighboring transitions
+synth_pars      0.01            2.0             1 = Step size of the synthesis, 2 = wavelength point to consider opacity contributions from neighboring transitions
 atmosphere      1               None            See description on WRITEMOOG.ps
 molecules       1               None            See description on WRITEMOOG.ps
 trudamp         1               None            See description on WRITEMOOG.ps
@@ -79,7 +92,7 @@ xshift          %.1f            %.4f            Shift on the x-axis, 1 = velocit
 yshift          %.4f            %.4f            Shift on the y-axis, 1 = additive, 2 = multiplicative, for the observed spectrum
 smoothing       %.3f            0.0             1 = Gaussian, 2 = Lorentzian
 darkening       0.6             None            Limb darkening coefficient of a rotational broadening function
-velocities      %.2f            %.3f            1 = macroturbulence, 2 = rotation
+velocities      %.2f            %.1f            1 = macroturbulence, 2 = rotation
 nabunds         1               None            # of elements
 abund           %i              %.3f'''
                 % (self.spec[0],self.spec[0],self.spec[1],self.spec[1],
@@ -93,12 +106,13 @@ abund           %i              %.3f'''
     moog in silent mode, interpolates the generated model to the points of
     the observed spectrum, and then simply calculates the sum of squared 
     differences, weighted by the inverse of the observed spectrum to the power
-    of 0.1. In the future, I'll implement a way to change this power.
+    of alpha.
     '''
     def perf(self,p):
         
         # Applying corrections to the observed spectrum
         self.data = np.loadtxt('spectrum.dat')
+        #self.line = np.loadtxt(self.line_file)
         self.data[:,0] = self.data[:,0] + self.xshift - self.data[:,0]*(
             self.c/(self.vshift*1E13+self.c)-1.0)
         self.data[:,1] = self.data[:,1]*self.ymult + self.yadd
@@ -108,12 +122,21 @@ abund           %i              %.3f'''
         self.write_params(p[0],p[1])
         m = moog.run(silent=True)
         
-        # Evaluating the performance
+        # Evaluating the performance in a radius around the center of the line
+        self.center_index = self.am.find_index(self.line_center,self.data_target[:,0])
+        self.ci0 = self.center_index-self.radius
+        self.ci1 = self.center_index+self.radius+1
         self.model = np.loadtxt('vm_smooth.out', skiprows=2)
-        self.model_interp = np.interp(self.data_target[:,0],
-                                      self.model[:,0],self.model[:,1])
-        return np.sum((1.0/self.data_target[:,1])**self.gamma*(self.data_target[:,1]-\
-            self.model_interp[:])**2)
+        self.model_interp = np.interp(self.data_target[self.ci0:self.ci1,0],
+                                      self.model[:,0],
+                                      self.model[:,1])
+        #plt.plot(self.data_target[self.ci0:self.ci1,0],self.data_target[self.ci0:self.ci1,1])
+        #plt.plot(self.data_target[self.ci0:self.ci1,0],self.model_interp[:])
+        #plt.show()
+        
+        return np.sum((1.0/self.data_target[self.ci0:self.ci1,1])**self.gamma\
+            *abs(self.data_target[self.ci0:self.ci1,1]-\
+                self.model_interp[:]))
     
     def find(self,guess_min,guess_max,**kwargs):
         
@@ -141,16 +164,16 @@ abund           %i              %.3f'''
             self.s_limit = kwargs['s_limit']
         else:
             self.s_limit = 1E-1
-        
-        if ('gamma' in kwargs):
-            self.gamma = kwargs['gamma']
-        else:
-            self.gamma = 1.0
             
         if ('rho' in kwargs):
             self.rho = kwargs['rho']
         else:
             self.rho = 0.1
+            
+        if ('plot' in kwargs):
+            self.plot = kwargs['plot']
+        else:
+            self.plot = True
         
         self.p_min = guess_min
         self.p_max = guess_max
@@ -171,4 +194,8 @@ abund           %i              %.3f'''
             self.new_p_sigma[1])
 
         self.write_params(self.new_p_mean[0],self.new_p_mean[1])
-        m = moog.run()
+        
+        if self.plot == True:
+            m = moog.run()
+        else:
+            m = moog.run(silent=True)
