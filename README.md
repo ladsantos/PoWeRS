@@ -45,7 +45,10 @@ Latest additions and corrections
 ------------
 
 * estimate does not optimize for the wavelength shift anymore
-* estimate now accepts a user-defined Gaussian smoothing and has more optional parameters
+* estimate.rotation now accepts a user-defined Gaussian smoothing and has more optional parameters
+* estimate.rotation now requires a line-list file (MOOG standard)
+* estimate.rotation now has a new, tunable performance function
+* estimate.rotation.find() now has a silent option
 
 Known issues
 ------------
@@ -58,7 +61,6 @@ To-do list
 
 * Documentation for estimate
 * A silent version of estimate
-* Pre-built functions for evaluating the performance, instead of the observed spectrum
 * Better error handling
 * Undo the need of having some files already created (for instance, batch.par)
 
