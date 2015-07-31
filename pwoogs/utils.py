@@ -38,6 +38,6 @@ class arr_manage(object):
                 
     # This routine finds the center of a line and returns a wavelength linear 
     # shift in order to correct for the error in centralization
-    def find_xshift(self,data):
+    def find_center(self,data):
         p = np.polyfit(x=data[:,0],y=data[:,1],deg=2)
-        return p
+        return -p[1]/2./p[0]
