@@ -54,7 +54,7 @@ class rotation(object):
         if ('gamma' in kwargs):
             self.gamma = kwargs['gamma']
         else:
-            self.gamma = 1.0
+            self.gamma = 0.0
         
         if ('perf_radius' in kwargs):
             self.radius = kwargs['perf_radius']
@@ -100,7 +100,8 @@ abund           %i              %.3f'''
                    self.gauss,self.v_m,self.rot_v,
                    self.Z,abund)
                 )
-                
+    
+    
     '''
     The performance function: first it creates the params.txt file, then runs
     moog in silent mode, interpolates the generated model to the points of
@@ -119,7 +120,7 @@ abund           %i              %.3f'''
         self.data_target = self.am.x_set_limits(self.spec[0],self.spec[1],self.data)
         
         # Running MOOGSILENT
-        self.write_params(p[0],p[1])
+        self.write_params(np.log10(p[0]),p[1])
         m = moog.run(silent=True)
         
         # Evaluating the performance in a radius around the center of the line
@@ -135,9 +136,10 @@ abund           %i              %.3f'''
         #plt.show()
         
         return np.sum((1.0/self.data_target[self.ci0:self.ci1,1])**self.gamma\
-            *abs(self.data_target[self.ci0:self.ci1,1]-\
-                self.model_interp[:]))
-    
+            *(self.data_target[self.ci0:self.ci1,1]-\
+                self.model_interp[:])**2)
+
+"""    
     def find(self,guess_min,guess_max,**kwargs):
         
         if ('N' in kwargs):
@@ -199,3 +201,4 @@ abund           %i              %.3f'''
             m = moog.run()
         else:
             m = moog.run(silent=True)
+"""
