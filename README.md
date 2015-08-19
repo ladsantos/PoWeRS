@@ -44,25 +44,23 @@ You can uninstall pwoogs simply by entering the following line on your terminal:
 Latest additions and corrections
 ------------
 
-* estimate does not optimize for the wavelength shift anymore
-* estimate.rotation now accepts a user-defined Gaussian smoothing and has more optional parameters
-* estimate.rotation now requires a line-list file (MOOG standard)
-* estimate.rotation now has a new, tunable performance function
-* estimate.rotation.find() now has a silent option
+* a few bug corrections on estimate
+* new useful routines on utils
 
 Known issues
 ------------
 
-* The code produce no or wrong results when there are too many points on the spectrum (a few tens of thousands, maybe?). This is a problem with MOOG, specifically, and there is not much we can do about it, except spoon-feeding it a nice small array of points.
-* The cross-entropy method can converge too fast sometimes. This is a particular trait of this method. When this happens, you'll either get a visually bad fit (local minimum?), or a RuntimeWarning or IndexError by crepe, which essentially means there happened a division by zero when evaluating the new values for the optimization. The best way to deal with this is to use an appropriate smoothing factor (alpha and beta on crepe - see its [still incomplete] manual or try different values).
+* The code does not have an optimization routine anymore. I'll be working on a better method.
 
 To-do list
 ------------
 
 * Documentation for estimate
 * A silent version of estimate
+* An optimization tool
 * Better error handling
 * Undo the need of having some files already created (for instance, batch.par)
+* Maybe changing the code so that it does not need installation?
 
 Version
 ------------
