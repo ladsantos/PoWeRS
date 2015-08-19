@@ -23,6 +23,7 @@ class line(object):
         self.v_rot = params[13,1]
         self.v_macro = params[13,0]
         self.fwhm_gauss = params[11,0]
+        self.abund = params[15,1]
 
         # Getting the numbers for the plot
         self.data = np.loadtxt('spectrum.dat')
@@ -58,9 +59,9 @@ class line(object):
         ax.plot(self.model_target[:,0],self.model_target[:,1])
         ax.ticklabel_format(useOffset=False)
         plt.title(
-            r'$v \sin{i} = %.2f$, $v_{macro} = %.2f$, $FWHM_{gauss} = %.3f$' \
-                % (self.v_rot,self.v_macro,self.fwhm_gauss)
+            r'$v \sin{i} = %.2f$, $v_{macro} = %.2f$, $FWHM_{gauss} = %.3f$, $abund = %.3f$' \
+                % (self.v_rot,self.v_macro,self.fwhm_gauss,self.abund)
             )
         plt.xlabel(r'$\lambda$ ($\AA$)')
-        plt.ylabel(r'$I_\lambda$')
+        plt.ylabel(r'$F_\lambda$ $d\lambda$')
         plt.show()
