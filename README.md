@@ -1,5 +1,7 @@
 # pwoogs
 
+### Work in progress ###
+
 pwoogs is a Python wrapper for MOOG synth, an application widely used in astronomy for synthesis of spectral lines. I recently started working on this after being fed up with the usual interface and plotting of MOOG. The code is very bare bones at the moment, but I'll be working on improving it, adding more features and a proper documentation as time goes on. Now it has a rotation estimator!
 
 Dependencies
