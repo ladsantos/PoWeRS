@@ -45,23 +45,24 @@ class arr_manage(object):
         N = len(data[:,0])
         xn = np.linspace(data[0,0],data[N-1,0])
         yn = np.array([p[0]*xk**2+p[1]*xk+p[2] for xk in xn])
-        plt.plot(data[:,0],data[:,1],'.',label='Data')
-        plt.plot(xn,yn,label='2nd order poly')
-        plt.xlabel('Wavelength (angstroms)')
-        plt.ylabel('Flux')
-        plt.legend()
-        plt.show()
         return -p[1]/2./p[0]
     
     # This routine finds the multiplicative factor to correct the normalization
     # of a region of the spectrum, using the highest region (radius) of the spectrum 
     # insde a section contained on data
-    def find_corr(self,data,radius):
+    def find_corr(self,data,radius,**kwargs):
+        
+        # Do you want the program to be silent?
+        if ('silent' in kwargs):
+            self.silent = kwargs['silent']
+        else:
+            self.silent = False
         
         self.m = max(data[:,1])
         self.ind = self.find_index(self.m,data[:,1])
         self.stdev = np.std(data[self.ind-radius:self.ind+radius+1,1])
-        print 'Standard deviation of the spectrum on the selected data points = %.4f' % self.stdev
+        if self.silent == False:
+            print 'Standard deviation of the spectrum on the selected data points = %.4f' % self.stdev
         return np.mean(data[self.ind-radius:self.ind+radius+1,1])
     
     # This routine finds the multiplicative factor to correct the normalization
