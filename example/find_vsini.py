@@ -13,7 +13,7 @@ script,choice = argv
 choice = int(choice)
 
 # Synthesis parameters
-line_file = 'sun_syn.lin'
+line_file = 'lines.dat'
 lines = np.loadtxt(line_file,skiprows=1,usecols=(0,1))
 interval = 1.0
 res_power = 65000.
@@ -58,11 +58,11 @@ corr = 1.0/np.mean(u.find_corr_from_ensemble(
 print "Correction factor = %.4f" % corr
 
 # Instatiating the function to write parameters for MOOG
-r = estimate.rotation(
+r = estimate.vsini(
             spec_window,
             gauss,
             v_macro,
-            'sun_syn.lin',
+            line_file,
             choice,
             x_wl=wl_shift,
             y_mult=corr,
