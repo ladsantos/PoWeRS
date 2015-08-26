@@ -23,7 +23,7 @@ class driver(object):
         
         # Input files
         self.model_in = 'star.mod'
-        self.lines_in = 'sun_syn.lin'
+        self.lines_in = 'lines.dat'
         self.observed_in = 'spectrum.dat'
         
         # Synthesis parameters
@@ -86,7 +86,7 @@ class driver(object):
             f.write(' %.2f %.2f 0.5 1.05\n' % (self.wl_start,self.wl_end))
             f.write(' %.4f  %.4f  %.3f  %.3f\n' % (self.vshift,self.wlshift,
                                                    self.yshifta,self.yshiftm))
-            f.write(' r  %.3f  %.1f  %.1f  %.2f  %.1f' % (self.gauss,self.rotv,
+            f.write(' r  %.3f  %.3f  %.1f  %.2f  %.1f' % (self.gauss,self.rotv,
                                                           self.dark,self.macrov,
                                                           self.lorentz))
 
