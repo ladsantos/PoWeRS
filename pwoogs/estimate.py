@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
+import time
 from pwoogs import plotter,moog,utils
 from crepe import normal
 
@@ -51,15 +52,25 @@ class rotation(object):
         else:
             self.ymult = 0.0
         
-        if ('gamma' in kwargs):
-            self.gamma = kwargs['gamma']
-        else:
-            self.gamma = 0.0
-        
         if ('perf_radius' in kwargs):
             self.radius = kwargs['perf_radius']
         else:
             self.radius = 5
+            
+        if ('bwing_w' in kwargs):
+            self.bwing_w = kwargs['bwing_w']
+        else:
+            self.bwing_w = 5.0
+            
+        if ('rwing_w' in kwargs):
+            self.rwing_w = kwargs['rwing_w']
+        else:
+            self.rwing_w = 1.0
+            
+        if ('center_w' in kwargs):
+            self.center_w = kwargs['center_w']
+        else:
+            self.center_w = 10.0
         
         self.c = 2.998E18
         self.am = utils.arr_manage()
@@ -72,9 +83,9 @@ class rotation(object):
         self.line_center = self.lines[line,0]
         
     # Function that writes to params.txt
-    def write_params(self,log_rot_v,abund):
+    def write_params(self,vsini,abund):
         
-        self.rot_v = 10**log_rot_v
+        #self.rot_v = 10**log_rot_v
         with open('params.txt','w') as f:
             f.truncate()
             f.write(
@@ -92,12 +103,12 @@ xshift          %.1f            %.4f            Shift on the x-axis, 1 = velocit
 yshift          %.4f            %.4f            Shift on the y-axis, 1 = additive, 2 = multiplicative, for the observed spectrum
 smoothing       %.3f            0.0             1 = Gaussian, 2 = Lorentzian
 darkening       0.6             None            Limb darkening coefficient of a rotational broadening function
-velocities      %.2f            %.1f            1 = macroturbulence, 2 = rotation
+velocities      %.2f            %.3f            1 = macroturbulence, 2 = v sin i
 nabunds         1               None            # of elements
-abund           %i              %.3f'''
+abund           %i              %.5f'''
                 % (self.spec[0],self.spec[0],self.spec[1],self.spec[1],
                    self.vshift,self.xshift,self.yadd,self.ymult,
-                   self.gauss,self.v_m,self.rot_v,
+                   self.gauss,self.v_m,vsini,
                    self.Z,abund)
                 )
     
@@ -120,7 +131,8 @@ abund           %i              %.3f'''
         self.data_target = self.am.x_set_limits(self.spec[0],self.spec[1],self.data)
         
         # Running MOOGSILENT
-        self.write_params(np.log10(p[0]),p[1])
+        #self.write_params(np.log10(p[0]),p[1])
+        self.write_params(p[0],p[1])
         m = moog.run(silent=True)
         
         # Evaluating the performance in a radius around the center of the line
@@ -131,74 +143,139 @@ abund           %i              %.3f'''
         self.model_interp = np.interp(self.data_target[self.ci0:self.ci1,0],
                                       self.model[:,0],
                                       self.model[:,1])
-        #plt.plot(self.data_target[self.ci0:self.ci1,0],self.data_target[self.ci0:self.ci1,1])
-        #plt.plot(self.data_target[self.ci0:self.ci1,0],self.model_interp[:])
-        #plt.show()
         
-        return np.sum((1.0/self.data_target[self.ci0:self.ci1,1])**self.gamma\
-            *(self.data_target[self.ci0:self.ci1,1]-\
-                self.model_interp[:])**2)
+        # Creating the weights vector
+        self.w = np.zeros(2*self.radius+1,float)
+        for i in range(self.radius):
+            self.w[i] = self.bwing_w
+            self.w[i+self.radius+1] = self.rwing_w
+        self.w[self.radius] = self.center_w
+        
+        return np.sum(self.w[:]*(self.data_target[self.ci0:self.ci1,1]-\
+                self.model_interp[:])**2)/np.sum(self.w)
 
-"""    
-    def find(self,guess_min,guess_max,**kwargs):
+    def find(self,**kwargs):
         
+        # Number of points to try for each iteration
         if ('N' in kwargs):
-            self.N = kwargs['N']
+            self.pts = kwargs['N']
         else:
-            self.N = 100
+            self.pts = 15
         
-        if ('alpha' in kwargs):
-            self.alpha = kwargs['alpha']
+        # Narrowing factor when going to the next iteration
+        if ('pace' in kwargs):
+            self.pace = kwargs['pace']
         else:
-            self.alpha = 0.5
-
-        if ('beta' in kwargs):
-            self.beta = kwargs['beta']
-        else:
-            self.beta = 0.1
+            self.pace = 2.0
         
-        if ('c_limit' in kwargs):
-            self.c_limit = kwargs['c_limit']
+        # Initial guess range for abundance. It has to be a numpy array of 
+        # length = 2
+        if ('a_guess' in kwargs):
+            self.a_guess = kwargs['a_guess']
         else:
-            self.c_limit = 1E-2
-            
-        if ('s_limit' in kwargs):
-            self.s_limit = kwargs['s_limit']
+            self.a_guess = np.array([-0.100,0.100])
+        
+        # Initial guess range for vsini. It has to be a numpy array of 
+        # length = 2
+        if ('v_guess' in kwargs):
+            self.v_guess = kwargs['v_guess']
         else:
-            self.s_limit = 1E-1
-            
-        if ('rho' in kwargs):
-            self.rho = kwargs['rho']
+            self.v_guess = np.array([0.5,10.0])
+        
+        # Maximum number of iterations
+        if ('max' in kwargs):
+            self.max_i = kwargs['I']
         else:
-            self.rho = 0.1
+            self.max_i = 20
+        
+        # Convergence limits: a numpy array with length 2, corresponding to the
+        # limits of vsini and abundance, respectively
+        if ('limits' in kwargs):
+            self.limits = kwargs['limits']
+        else:
+            self.limits = np.array([0.1,0.001])
             
+        # Plot the spectral line fit at the end?
         if ('plot' in kwargs):
             self.plot = kwargs['plot']
         else:
             self.plot = True
         
-        self.p_min = guess_min
-        self.p_max = guess_max
-        self.p_mean = (self.p_min+self.p_max)/2.
-        self.p_sigma = (self.p_max-self.p_min)/2.
-        
-        # The estimation by CREPE is done in just one line:
-        self.new_p_mean,self.new_p_sigma = self.n.estimate(self.perf,\
-            self.p_mean,self.p_sigma,c_limit=self.c_limit,verbose=True,\
-                alpha=self.alpha,beta=self.beta,N=self.N,rho=self.rho)
-
-        # Printing and plotting the results
-        print 'log_v_rot = %.3f p/m %.3f' % (self.new_p_mean[0],\
-            self.new_p_sigma[0])
-        #print 'xshift = %.4f p/m %.4f' % (self.new_p_mean[2],\
-        #    self.new_p_sigma[2])
-        print 'abund = %.3f p/m %.3f' % (self.new_p_mean[1],\
-            self.new_p_sigma[1])
-
-        self.write_params(self.new_p_mean[0],self.new_p_mean[1])
-        
-        if self.plot == True:
-            m = moog.run()
+        # Do you want the program to be silent? Not very useful at the moment
+        if ('silent' in kwargs):
+            self.silent = kwargs['silent']
         else:
+            self.silent = False
+        
+        print "\nStarting estimation of vsini and abundance...\n"
+        self.t0 = time.time()
+        self.best_a = np.mean(self.a_guess)
+        self.best_v = np.mean(self.v_guess)
+        self.it = 1
+        self.finish = False
+        
+        while self.finish == False and self.it < self.max_i:
+
+            # Evaluating vsini
+            self.v_grid = np.linspace(self.v_guess[0],self.v_guess[1],self.pts)
+            self.S = np.array([self.perf(np.array([self.v_grid[k],\
+                self.best_a])) for k in range(self.pts)])
+            self.best_v_ind = np.where(self.S == min(self.S))
+            self.best_v = self.v_grid[self.best_v_ind]
+            
+            # Evaluating abundance
+            self.a_grid = np.linspace(self.a_guess[0],self.a_guess[1],self.pts)
+            self.S = np.array([self.perf(np.array([self.best_v,self.a_grid[k]]))\
+                for k in range(self.pts)])
+            self.best_a_ind = np.where(self.S == min(self.S))[0][0]
+            self.best_a = self.a_grid[self.best_a_ind]
+
+            # Checking if the best values are too near the edges of the guess
+            if self.best_v_ind == 0 or self.best_v_ind == self.pts-1:
+                self.go = False
+            elif self.best_a_ind == 0 or self.best_a_ind == self.pts-1:
+                self.go = False
+            else:
+                self.go = True
+            
+            # Calculating changes
+            self.v_change = np.abs(self.best_v-np.mean(self.v_guess))
+            self.a_change = np.abs(self.best_a-np.mean(self.a_guess))
+            if self.v_change < self.limits[0] and self.a_change < self.limits[1]:
+                self.finish = True
+                print "final iteration = %i" % self.it
+            else:
+                print "iteration = %i" % self.it
+            print "best vsini = %.1f (changed %.3f)" % \
+                (self.best_v,self.v_change)
+            print "best abund = %.3f (changed %.4f)\n" % \
+                (self.best_a,self.a_change)
+            
+            # Setting the new guess. If one of the best values are too near the
+            # edges of the previous guess, it will not narrow the new guess range
+            self.v_width = self.v_guess[1]-self.v_guess[0]
+            self.a_width = self.a_guess[1]-self.a_guess[0]
+            if self.go == True:
+                self.v_guess = np.array([self.best_v-self.v_width/2/self.pace,\
+                    self.best_v+self.v_width/2/self.pace])
+                self.a_guess = np.array([self.best_a-self.a_width/2/self.pace,\
+                    self.best_a+self.a_width/2/self.pace])
+            else:
+                print "One of the best values is too close to the edge of the"
+                print "current guess. I am not narrowing the next guess range."
+                self.v_guess = np.array([self.best_v-self.v_width/2,\
+                    self.best_v+self.v_width/2])
+                self.a_guess = np.array([self.best_a-self.a_width/2,\
+                    self.best_a+self.a_width/2])
+            
+            self.it += 1
+        
+        # Finalizing the routine
+        self.t1 = time.time()
+        self.total_time = self.t1-self.t0
+        print "Estimation took %.3f seconds." % self.total_time
+        self.write_params(self.best_v,self.best_a)
+        if self.plot == True:
+            m = moog.run(silent=False)
+        elif self.plot == False or self.silent == True:
             m = moog.run(silent=True)
-"""
