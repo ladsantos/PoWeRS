@@ -13,7 +13,6 @@ Unfortunately, pwoogs depends on a full installation of MOOGSILENT, which does r
 * numpy
 * matplotlib
 * pip (optional: only for [un-]installation)
-* crepe (optional: only if you plan to use the parameter estimation routines)
 
 If you have problems installing SM or MOOG, which you most certainly will, take a look at the documentation of pwoogs. There is a bunch of tips there.
 
@@ -46,20 +45,18 @@ You can uninstall pwoogs simply by entering the following line on your terminal:
 Latest additions and corrections
 ------------
 
-* a few bug corrections on estimate
-* new useful routines on utils
+* estimate.rotation now has a much faster, better and efficient find() routine
 
 Known issues
 ------------
 
-* The code does not have an optimization routine anymore. I'll be working on a better method.
+* The code is not fully optimized and still needs polishing on handling files
 
 To-do list
 ------------
 
 * Documentation for estimate
 * A silent version of estimate
-* An optimization tool
 * Better error handling
 * Undo the need of having some files already created (for instance, batch.par)
 * Maybe changing the code so that it does not need installation?
@@ -67,4 +64,4 @@ To-do list
 Version
 ------------
 
-pwoogs 0.1 (Alpha) build 1507
+pwoogs 0.1 (Alpha) build 1508
