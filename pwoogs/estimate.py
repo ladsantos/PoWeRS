@@ -16,57 +16,64 @@ batch.par file, the latter can be empty). For now, it works only for single-line
 analysis.
 """
 
-class rotation(object):
+class vsini(object):
     
     # spec_window is the spectral analysis window, a 1x2 numpy array
-    # x_vel is the velocity shift to be applied to the x-axis
-    # x_wl is the wavelengths shift to be applied to the x-axis
-    # y_add is the additive shift to be applied to the spectrum
-    # y_mult is the multiplicative shift to be applied to the spectrum
-    # par is the a 2x2 numpy array containing:
-    # [[ veloc guess min, veloc guess max ],
-    #  [ abund guess min, abund guess max ]]
+    # gauss is the instrumental broadening parameter
     # v_macro is the macroturbulence velocity
-    # Z is the atomic number of the chemical element that produces the line
+    # line_file is the name of the file containing the chosen lines
+    # line is which of the lines on the previous file to work on
     def __init__(self,spec_window,gauss,v_macro,line_file,line,**kwargs):
         
         # Default optional parameters:
         
+        # x_vel is the velocity shift to be applied to the x-axis
         if ('x_vel' in kwargs):
             self.vshift = kwargs['x_vel']
         else:
             self.vshift = 0.0
-            
+        
+        # x_wl is the wavelengths shift to be applied to the x-axis
         if ('x_wl' in kwargs):
             self.xshift = kwargs['x_wl']
         else:
             self.xshift = 0.0
         
+        # y_add is the additive shift to be applied to the spectrum
         if ('y_add' in kwargs):
             self.yadd = kwargs['y_add']
         else:
             self.yadd = 0.0
-            
+        
+        # y_mult is the multiplicative shift to be applied to the spectrum
         if ('y_mult' in kwargs):
             self.ymult = kwargs['y_mult']
         else:
             self.ymult = 0.0
         
+        # perf_radius is the number of points around the line center where
+        # to evaluate the performance of the synthetic spectrum
         if ('perf_radius' in kwargs):
             self.radius = kwargs['perf_radius']
         else:
             self.radius = 5
-            
+        
+        # bwing_w is the weight to be applied to the blue side of the line
+        # when evaluating the performance
         if ('bwing_w' in kwargs):
             self.bwing_w = kwargs['bwing_w']
         else:
             self.bwing_w = 5.0
-            
+        
+        # bwing_w is the weight to be applied to the red side of the line
+        # when evaluating the performance
         if ('rwing_w' in kwargs):
             self.rwing_w = kwargs['rwing_w']
         else:
             self.rwing_w = 1.0
-            
+        
+        # center_w is the weight to be applied to the line center when 
+        # evaluating the performance
         if ('center_w' in kwargs):
             self.center_w = kwargs['center_w']
         else:
