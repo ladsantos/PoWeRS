@@ -47,7 +47,15 @@ class line(object):
         return data2d[self.start_index:self.end_index]
 
     # The plotting function
-    def plot(self):
+    def plot(self,**kwargs):
+        
+        # mode is set to plot on window by default. Any other value will
+        # save a file with that value as name. For example: mode='plot.eps'
+        # will save the plot as plot.eps 
+        if ('mode' in kwargs):
+            self.mode = kwargs['mode']
+        else:
+            self.mode = 'window'
         
         # Setting the limits on the x-axis
         self.data_target = self.x_set_limits(self.wl_start,self.wl_end,self.data)
@@ -64,4 +72,11 @@ class line(object):
             )
         plt.xlabel(r'$\lambda$ ($\AA$)')
         plt.ylabel(r'$F_\lambda$ $d\lambda$')
-        plt.show()
+        
+        
+        if self.mode == 'window':
+            print 'Showing plot in a window'
+            plt.show()
+        else:
+            print 'Saving plot as %s' % self.mode
+            plt.savefig(self.mode)
