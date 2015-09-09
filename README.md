@@ -46,7 +46,7 @@ Latest additions and corrections
 ------------
 
 * estimate.rotation now has a much faster, better and efficient find() routine
-* plotter now has an option to save plot as a file
+* plotter now has an option to save plot as a file (still being tested - use with discretion)
 
 Known issues
 ------------
