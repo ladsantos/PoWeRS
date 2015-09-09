@@ -46,6 +46,7 @@ Latest additions and corrections
 ------------
 
 * estimate.rotation now has a much faster, better and efficient find() routine
+* plotter now has an option to save plot as a file
 
 Known issues
 ------------
@@ -55,10 +56,10 @@ Known issues
 To-do list
 ------------
 
+* Examples
 * Documentation for estimate
 * A silent version of estimate
 * Better error handling
-* Undo the need of having some files already created (for instance, batch.par)
 * Maybe changing the code so that it does not need installation?
 
 Version
