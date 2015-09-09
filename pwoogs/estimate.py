@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-#import matplotlib.pyplot as plt
 import time
 from pwoogs import plotter,moog,utils
-from crepe import normal
 
 """
 This code is used to estimate the projected rotation speed of a star given a
@@ -23,7 +21,8 @@ class vsini(object):
     # v_macro is the macroturbulence velocity
     # line_file is the name of the file containing the chosen lines
     # line is which of the lines on the previous file to work on
-    def __init__(self,spec_window,gauss,v_macro,line_file,line,**kwargs):
+    # SN is the signal-to-noise ratio of the spectrum
+    def __init__(self,spec_window,gauss,v_macro,line_file,line,SN,**kwargs):
         
         # Default optional parameters:
         
@@ -79,20 +78,29 @@ class vsini(object):
         else:
             self.center_w = 10.0
         
+        # Maximum number of points around the performance radius that are
+        # allowed to be a bad fit (1 S/N sigma lower than observed signal)
+        # If this limit is exceeded, the variable badfit_status will return
+        # True after running find()
+        # For high precision spectrum, set this to a very low number
+        if ('badfit_tol' in kwargs):
+            self.badfit_tol = kwargs['badfit_tol']
+        else:
+            self.badfit_tol = 10
+        
         self.c = 2.998E18
         self.am = utils.arr_manage()
-        self.n = normal.optimize()
         self.spec = spec_window
         self.gauss = gauss
         self.v_m = v_macro
         self.lines = np.loadtxt(line_file,skiprows=1,usecols=(0,1))
         self.Z = self.lines[line,1]
         self.line_center = self.lines[line,0]
+        self.spec_sigma = 1./SN
         
     # Function that writes to params.txt
     def write_params(self,vsini,abund):
         
-        #self.rot_v = 10**log_rot_v
         with open('params.txt','w') as f:
             f.truncate()
             f.write(
@@ -131,7 +139,6 @@ abund           %i              %.5f'''
         
         # Applying corrections to the observed spectrum
         self.data = np.loadtxt('spectrum.dat')
-        #self.line = np.loadtxt(self.line_file)
         self.data[:,0] = self.data[:,0] + self.xshift - self.data[:,0]*(
             self.c/(self.vshift*1E13+self.c)-1.0)
         self.data[:,1] = self.data[:,1]*self.ymult + self.yadd
@@ -150,6 +157,10 @@ abund           %i              %.5f'''
         self.model_interp = np.interp(self.data_target[self.ci0:self.ci1,0],
                                       self.model[:,0],
                                       self.model[:,1])
+        
+        # Checking the fit on line wings
+        self.check = self.data_target[self.ci0:self.ci1,1]-self.model_interp
+        self.check = len(np.where(self.check>self.spec_sigma)[0])
         
         # Creating the weights vector
         self.w = np.zeros(2*self.radius+1,float)
@@ -208,81 +219,120 @@ abund           %i              %.5f'''
         else:
             self.plot = True
         
+        # Set 'save' to a filename with an extension (e.g. png, eps) 
+        # Overrides 'plot' to False
+        if ('save' in kwargs):
+            self.save = kwargs['save']
+            self.plot = False
+        else:
+            self.save = None
+        
         # Do you want the program to be silent? Not very useful at the moment
         if ('silent' in kwargs):
             self.silent = kwargs['silent']
         else:
             self.silent = False
         
-        print "\nStarting estimation of vsini and abundance...\n"
+        if self.silent == False:
+            print "\nStarting estimation of vsini and abundance...\n"
         self.t0 = time.time()
         self.best_a = np.mean(self.a_guess)
         self.best_v = np.mean(self.v_guess)
         self.it = 1
         self.finish = False
+        self.badfit_status = False
         
         while self.finish == False and self.it < self.max_i:
-
+            
             # Evaluating vsini
             self.v_grid = np.linspace(self.v_guess[0],self.v_guess[1],self.pts)
             self.S = np.array([self.perf(np.array([self.v_grid[k],\
                 self.best_a])) for k in range(self.pts)])
-            self.best_v_ind = np.where(self.S == min(self.S))
+            self.best_v_ind = np.where(self.S == min(self.S))[0][0]
             self.best_v = self.v_grid[self.best_v_ind]
             
             # Evaluating abundance
             self.a_grid = np.linspace(self.a_guess[0],self.a_guess[1],self.pts)
-            self.S = np.array([self.perf(np.array([self.best_v,self.a_grid[k]]))\
+            self.S= np.array([self.perf(np.array([self.best_v,self.a_grid[k]]))\
                 for k in range(self.pts)])
             self.best_a_ind = np.where(self.S == min(self.S))[0][0]
             self.best_a = self.a_grid[self.best_a_ind]
-
+            
+            self.go_v = True
+            self.go_a = True
+            
             # Checking if the best values are too near the edges of the guess
             if self.best_v_ind == 0 or self.best_v_ind == self.pts-1:
-                self.go = False
+                self.go_v = False
             elif self.best_a_ind == 0 or self.best_a_ind == self.pts-1:
-                self.go = False
-            else:
-                self.go = True
-            
+                self.go_a = False
+
             # Calculating changes
             self.v_change = np.abs(self.best_v-np.mean(self.v_guess))
             self.a_change = np.abs(self.best_a-np.mean(self.a_guess))
-            if self.v_change < self.limits[0] and self.a_change < self.limits[1]:
-                self.finish = True
-                print "final iteration = %i" % self.it
-            else:
-                print "iteration = %i" % self.it
-            print "best vsini = %.1f (changed %.3f)" % \
-                (self.best_v,self.v_change)
-            print "best abund = %.3f (changed %.4f)\n" % \
-                (self.best_a,self.a_change)
+            if self.silent == False:
+                if self.v_change < self.limits[0] and self.a_change < self.limits[1]:
+                    self.finish = True
+                    print "final iteration = %i" % self.it
+                else:
+                    print "iteration = %i" % self.it
+                print "best vsini = %.1f (changed %.3f)" % \
+                    (self.best_v,self.v_change)
+                print "best abund = %.3f (changed %.4f)\n" % \
+                    (self.best_a,self.a_change)
             
             # Setting the new guess. If one of the best values are too near the
-            # edges of the previous guess, it will not narrow the new guess range
+            # edges of the previous guess, it will not narrow its new guess range
             self.v_width = self.v_guess[1]-self.v_guess[0]
             self.a_width = self.a_guess[1]-self.a_guess[0]
-            if self.go == True:
+            if self.go_v == True:
                 self.v_guess = np.array([self.best_v-self.v_width/2/self.pace,\
                     self.best_v+self.v_width/2/self.pace])
-                self.a_guess = np.array([self.best_a-self.a_width/2/self.pace,\
-                    self.best_a+self.a_width/2/self.pace])
             else:
-                print "One of the best values is too close to the edge of the"
-                print "current guess. I am not narrowing the next guess range."
                 self.v_guess = np.array([self.best_v-self.v_width/2,\
                     self.best_v+self.v_width/2])
+            if self.go_a == True:
+                self.a_guess = np.array([self.best_a-self.a_width/2/self.pace,\
+                    self.best_a+self.a_width/2/self.pace])
+            
+            # Checking if the v_guess contains vsini lower than 0.5. If True,
+            # it will add a value to the array so that the lower limit is 0.5
+            if self.v_guess[0] < 0.5 and self.silent == False:
+                print "WARNING: vsini guess is less than 0.5. I will shift it."
+                self.v_guess += 0.5-self.v_guess[0]
+            
+            else:
                 self.a_guess = np.array([self.best_a-self.a_width/2,\
                     self.best_a+self.a_width/2])
             
             self.it += 1
         
         # Finalizing the routine
+        if self.it == self.max_i and self.silent == False:
+            print "Maximum number of iterations reached!\n"
         self.t1 = time.time()
         self.total_time = self.t1-self.t0
-        print "Estimation took %.3f seconds." % self.total_time
+        if self.silent == False:
+            print "Estimation took %.3f seconds." % self.total_time
         self.write_params(self.best_v,self.best_a)
+
         if self.plot == True:
             m = moog.run(silent=False)
-        elif self.plot == False or self.silent == True:
+        elif (self.plot == False or self.silent == True) and self.save != None:
+            m = moog.run(silent=False,save=self.save)
+        else:
             m = moog.run(silent=True)
+            
+        # Trigger bad fit warning
+        self.S = self.perf(np.array([self.best_v,self.best_a]))
+        if self.check > self.badfit_tol:
+            self.badfit_status = True
+            if self.silent == False:
+                print """
+    It is possible that the estimation is bad. This is usually caused
+    by a slow-rotating star, line-blending, line center shift or bad continuum. 
+    I suggest using a lower pace and more points, doing it manually or 
+    discarding result for this particular line.
+                """
+        
+        return self.best_v,self.best_a,self.badfit_status

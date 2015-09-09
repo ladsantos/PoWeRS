@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import logging
 import numpy as np
 import plotter
 
@@ -57,6 +56,7 @@ class driver(object):
     # Writes the MOOG driver file batch.par
     def create_batch(self):
         
+        # Creating batch.par file
         with open('batch.par','w') as f:
             f.truncate()
             f.write('synth\n')
@@ -99,6 +99,12 @@ class run(object):
             self.silent = kwargs['silent']
         else:
             self.silent = False
+            
+        # Save file with a name instead of plotting on window
+        if ('save' in kwargs):
+            self.save = kwargs['save']
+        else:
+            self.save = 'window'
         
         self.params = np.genfromtxt('params.txt',usecols=(1,2),skip_header=1,
                                     missing_values='None',filling_values=0)            
@@ -107,4 +113,5 @@ class run(object):
 
         # Plotting
         if self.silent == False:
-            self.p = plotter.line(self.params).plot()
+            print self.save
+            self.p = plotter.line(self.params).plot(mode=self.save)
