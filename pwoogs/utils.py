@@ -19,8 +19,8 @@ class arr_manage(object):
     # This routine returns a section of an array given the start and end values
     def x_set_limits(self,start,end,data2d):
         
-        assert start > data2d[0], 'Invalid start value'
-        assert end < data2d[-1], 'Invalid end value'
+        assert start > data2d[0,0], 'Invalid start value'
+        assert end < data2d[-1,0], 'Invalid end value'
         self.start_index = self.find_index(start,data2d[:,0])
         self.end_index = self.find_index(end,data2d[:,0])
         return data2d[self.start_index:self.end_index]
