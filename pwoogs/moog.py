@@ -8,12 +8,14 @@ import plotter
 """
 This code is used to create a MOOG's driver file and run MOOGSILENT. 
 It is optimized for single-line analysis. Usage for a large region
-of the spectrum, with many lines, has not been tested.
+of the spectrum, with many lines, is not advised.
 """
+
 
 class driver(object):
     
-    def __init__(self,params,**kwargs):
+    
+    def __init__(self, params, **kwargs):
         
         # Output files
         self.standard_out = 'vm_long.out'
@@ -53,6 +55,7 @@ class driver(object):
         self.flu = params[7,0]
         self.dam = params[8,0]
         
+        
     # Writes the MOOG driver file batch.par
     def create_batch(self):
         
@@ -76,25 +79,29 @@ class driver(object):
             f.write('plot    3\n')
             f.write('abundances  %i 1\n' % self.N)
             for k in range(self.N):
-                f.write('   %i %f\n' % (self.Z[k],self.abunds[k]))
+                f.write('   %i %f\n' % (self.Z[k], self.abunds[k]))
             f.write('isotopes   0  1\n')
             f.write('synlimits\n')
-            f.write(' %.1f %.1f %.2f %.1f\n' % (self.syn_start,self.syn_end,
-                                                self.step,self.opac))
+            f.write(' %.1f %.1f %.2f %.1f\n' % (self.syn_start, self.syn_end,
+                                                self.step, self.opac))
             f.write('obspectrum  5\n')
             f.write('plotpars  1\n')
-            f.write(' %.2f %.2f 0.5 1.05\n' % (self.wl_start,self.wl_end))
-            f.write(' %.4f  %.4f  %.3f  %.3f\n' % (self.vshift,self.wlshift,
-                                                   self.yshifta,self.yshiftm))
-            f.write(' r  %.3f  %.3f  %.1f  %.2f  %.1f' % (self.gauss,self.rotv,
-                                                          self.dark,self.macrov,
+            f.write(' %.2f %.2f 0.5 1.05\n' % (self.wl_start, self.wl_end))
+            f.write(' %.4f  %.4f  %.3f  %.3f\n' % (self.vshift, self.wlshift,
+                                                   self.yshifta, self.yshiftm))
+            f.write(' r  %.3f  %.3f  %.1f  %.2f  %.1f' % (self.gauss,
+                                                          self.rotv,
+                                                          self.dark,
+                                                          self.macrov,
                                                           self.lorentz))
 
+
 class run(object):
+
     
     def __init__(self, **kwargs):
         
-        # Setting default kwargs parameters
+        # Do you want the silent version?
         if ('silent' in kwargs):
             self.silent = kwargs['silent']
         else:
@@ -106,12 +113,11 @@ class run(object):
         else:
             self.save = 'window'
         
-        self.params = np.genfromtxt('params.txt',usecols=(1,2),skip_header=1,
-                                    missing_values='None',filling_values=0)            
+        self.params = np.genfromtxt('params.txt',usecols=(1,2), skip_header=1,
+                                    missing_values='None', filling_values=0)            
         self.d = driver(self.params).create_batch()
         os.system('MOOGSILENT > moog.log 2>&1')
 
         # Plotting
         if self.silent == False:
-            print self.save
             self.p = plotter.line(self.params).plot(mode=self.save)
