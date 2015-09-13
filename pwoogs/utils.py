@@ -3,7 +3,9 @@
 
 import numpy as np
 
+
 class arr_manage(object):
+
     
     # This routine finds the index of a value closest to the target in a 
     # numpy-array
@@ -13,6 +15,7 @@ class arr_manage(object):
         self.index = np.where(self.diff == min(self.diff))[0][0]
         return self.index
     
+    
     # This routine returns a section of an array given the start and end values
     def x_set_limits(self,start,end,data2d):
         
@@ -21,6 +24,7 @@ class arr_manage(object):
         self.start_index = self.find_index(start,data2d[:,0])
         self.end_index = self.find_index(end,data2d[:,0])
         return data2d[self.start_index:self.end_index]
+    
     
     # This routine writes the section of a datafile to a new one, for which 
     # the start and end values are chosen for a specific column of the 
@@ -48,7 +52,8 @@ class arr_manage(object):
                     self.data[i+self.start_index,1]
                     )
                 )
-                
+        
+        
     # This routine finds the center of a line and returns a wavelength linear 
     # shift in order to correct for the error in centralization
     def find_center(self,data):
@@ -58,6 +63,7 @@ class arr_manage(object):
         xn = np.linspace(data[0,0],data[N-1,0])
         yn = np.array([p[0]*xk**2+p[1]*xk+p[2] for xk in xn])
         return -p[1]/2./p[0]
+    
     
     # This routine finds the multiplicative factor to correct the normalization
     # of a region of the spectrum, using the highest region (radius) of the 
@@ -77,6 +83,7 @@ class arr_manage(object):
             print 'Standard deviation of the spectrum on the ' \
                   'selected data points = %.4f' % self.stdev
         return np.mean(data[self.ind-radius:self.ind+radius+1,1])
+    
     
     # This routine finds the multiplicative factor to correct the normalization
     # of a region of the spectrum, using an ensemble of user defined points, 
