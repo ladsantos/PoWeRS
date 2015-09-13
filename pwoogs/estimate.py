@@ -27,6 +27,12 @@ class vsini(object):
         
         # Default optional parameters:
         
+        # Writes star's name at the plot
+        if ('star_name' in kwargs):
+            self.name = kwargs['star_name']
+        else:
+            self.name = 'Unnamed star'
+        
         # x_vel is the velocity shift to be applied to the x-axis
         if ('x_vel' in kwargs):
             self.vshift = kwargs['x_vel']
@@ -206,9 +212,15 @@ abund           %i              %.5f'''
         else:
             self.v_guess = np.array([0.5,10.0])
         
+        # Minimum number of iterations
+        if ('min_i' in kwargs):
+            self.min_i = kwargs['min_i']
+        else:
+            self.min_i = 5
+        
         # Maximum number of iterations
-        if ('max' in kwargs):
-            self.max_i = kwargs['I']
+        if ('max_i' in kwargs):
+            self.max_i = kwargs['max_i']
         else:
             self.max_i = 20
         
@@ -277,15 +289,18 @@ abund           %i              %.5f'''
             self.v_change = np.abs(self.best_v-np.mean(self.v_guess))
             self.a_change = np.abs(self.best_a-np.mean(self.a_guess))
             if self.silent == False:
-                if self.v_change < self.limits[0] and self.a_change < self.limits[1]:
+                if self.v_change < self.limits[0] and self.a_change < self.limits[1] and self.it > self.min_i:
                     self.finish = True
                     print "final iteration = %i" % self.it
                 else:
                     print "iteration = %i" % self.it
-                print "best vsini = %.1f (changed %.3f)" % \
+                print "best vsini = %.2f (changed %.3f)" % \
                     (self.best_v,self.v_change)
                 print "best abund = %.3f (changed %.4f)\n" % \
                     (self.best_a,self.a_change)
+            else:
+                if self.v_change < self.limits[0] and self.a_change < self.limits[1] and self.it > self.min_i:
+                    self.finish = True
             
             # Setting the new guess. If one of the best values are too near the
             # edges of the previous guess, it will not narrow its new guess range
@@ -325,7 +340,7 @@ abund           %i              %.5f'''
         if self.plot == True:
             m = moog.run(silent=False)
         elif (self.plot == False or self.silent == True) and self.save != None:
-            m = moog.run(silent=False,save=self.save)
+            m = moog.run(silent=False, save=self.save, star_name=self.name)
         else:
             m = moog.run(silent=True)
             

@@ -112,6 +112,12 @@ class run(object):
             self.save = kwargs['save']
         else:
             self.save = 'window'
+            
+        # Write star name at the plot?
+        if ('star_name' in kwargs):
+            self.name = kwargs['star_name']
+        else:
+            self.name = 'Unnamed star'
         
         self.params = np.genfromtxt('params.txt',usecols=(1,2), skip_header=1,
                                     missing_values='None', filling_values=0)            
@@ -120,4 +126,5 @@ class run(object):
 
         # Plotting
         if self.silent == False:
-            self.p = plotter.line(self.params).plot(mode=self.save)
+            self.p = plotter.line(self.params).plot(mode=self.save, 
+                                                    star_name=self.name)
