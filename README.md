@@ -46,7 +46,9 @@ Latest additions and corrections
 ------------
 
 * estimate.rotation now has a much faster, better and efficient find() routine
-* plotter now has an option to save plot as a file (still being tested - use with discretion)
+* plotter now has an option to save plot as a file
+* started to correct codes for PEP0008 compliance
+* started adding assertions for defensive coding
 
 Known issues
 ------------
