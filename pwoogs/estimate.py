@@ -7,22 +7,23 @@ from pwoogs import plotter,moog,utils
 
 """
 This code is used to estimate the projected rotation speed of a star given a
-spectral line, correction factors and an initial guess. It uses the 
-cross-entropy (CE) method to do estimation. You need to have all the necessary
-input files for MOOG (atmosphere model, observed spectrum, lines file and a
-batch.par file, the latter can be empty). For now, it works only for single-line
-analysis.
+spectral line, correction factors and an initial guess. You need to have all 
+the necessary input files for MOOG (atmosphere model, observed spectrum, and 
+a lines file). For now, it works only for single-line analysis.
 """
 
+
 class vsini(object):
-    
+  
+  
     # spec_window is the spectral analysis window, a 1x2 numpy array
     # gauss is the instrumental broadening parameter
     # v_macro is the macroturbulence velocity
     # line_file is the name of the file containing the chosen lines
     # line is which of the lines on the previous file to work on
     # SN is the signal-to-noise ratio of the spectrum
-    def __init__(self,spec_window,gauss,v_macro,line_file,line,SN,**kwargs):
+    def __init__(self, spec_window, gauss, v_macro, line_file, line, SN, 
+                 **kwargs):
         
         # Default optional parameters:
         
@@ -93,18 +94,20 @@ class vsini(object):
         self.spec = spec_window
         self.gauss = gauss
         self.v_m = v_macro
-        self.lines = np.loadtxt(line_file,skiprows=1,usecols=(0,1))
+        self.lines = np.loadtxt(line_file, skiprows=1, usecols=(0,1))
         self.Z = self.lines[line,1]
         self.line_center = self.lines[line,0]
         self.spec_sigma = 1./SN
         
+        
     # Function that writes to params.txt
-    def write_params(self,vsini,abund):
+    # WARNING: this needs to be written in a more readable fashion
+    def write_params(self, vsini, abund):
         
         with open('params.txt','w') as f:
             f.truncate()
             f.write(
-                '''Parameter       Value 1         Value 2         Comment
+                'Parameter       Value 1         Value 2         Comment
 l_limit         %.1f            %.1f            Lower limits: 1 = synthesis, 2 = plotting, angstrons
 u_limit         %.1f            %.1f            Upper limits: 1 = synthesis, 2 = plotting, angstrons
 synth_pars      0.01            2.0             1 = Step size of the synthesis, 2 = wavelength point to consider opacity contributions from neighboring transitions
@@ -121,10 +124,9 @@ darkening       0.6             None            Limb darkening coefficient of a 
 velocities      %.2f            %.3f            1 = macroturbulence, 2 = v sin i
 nabunds         1               None            # of elements
 abund           %i              %.5f'''
-                % (self.spec[0],self.spec[0],self.spec[1],self.spec[1],
-                   self.vshift,self.xshift,self.yadd,self.ymult,
-                   self.gauss,self.v_m,vsini,
-                   self.Z,abund)
+                % (self.spec[0], self.spec[0], self.spec[1], self.spec[1],
+                   self.vshift, self.xshift, self.yadd, self.ymult,
+                   self.gauss, self.v_m,vsini, self.Z,abund)
                 )
     
     
@@ -135,44 +137,48 @@ abund           %i              %.5f'''
     differences, weighted by the inverse of the observed spectrum to the power
     of alpha.
     '''
-    def perf(self,p):
+    def perf(self, p):
         
         # Applying corrections to the observed spectrum
         self.data = np.loadtxt('spectrum.dat')
-        self.data[:,0] = self.data[:,0] + self.xshift - self.data[:,0]*(
-            self.c/(self.vshift*1E13+self.c)-1.0)
-        self.data[:,1] = self.data[:,1]*self.ymult + self.yadd
-        self.data_target = self.am.x_set_limits(self.spec[0],self.spec[1],self.data)
+        self.data[:,0] = self.data[:,0] + self.xshift - self.data[:,0] * \
+            (self.c / (self.vshift*1E13 + self.c) - 1.0)
+        self.data[:,1] = self.data[:,1] * self.ymult + self.yadd
+        self.data_target = self.am.x_set_limits(self.spec[0], self.spec[1], 
+                                                self.data)
         
         # Running MOOGSILENT
         #self.write_params(np.log10(p[0]),p[1])
-        self.write_params(p[0],p[1])
+        self.write_params(p[0], p[1])
         m = moog.run(silent=True)
         
         # Evaluating the performance in a radius around the center of the line
-        self.center_index = self.am.find_index(self.line_center,self.data_target[:,0])
-        self.ci0 = self.center_index-self.radius
-        self.ci1 = self.center_index+self.radius+1
+        self.center_index = self.am.find_index(self.line_center, 
+                                               self.data_target[:,0])
+        self.ci0 = self.center_index - self.radius
+        self.ci1 = self.center_index + self.radius+1
         self.model = np.loadtxt('vm_smooth.out', skiprows=2)
         self.model_interp = np.interp(self.data_target[self.ci0:self.ci1,0],
                                       self.model[:,0],
                                       self.model[:,1])
         
         # Checking the fit on line wings
-        self.check = self.data_target[self.ci0:self.ci1,1]-self.model_interp
-        self.check = len(np.where(self.check>self.spec_sigma)[0])
+        self.check = self.data_target[self.ci0:self.ci1,1] - self.model_interp
+        self.check = len(np.where(self.check > self.spec_sigma)[0])
         
         # Creating the weights vector
-        self.w = np.zeros(2*self.radius+1,float)
+        self.w = np.zeros(2 * self.radius + 1, float)
         for i in range(self.radius):
             self.w[i] = self.bwing_w
-            self.w[i+self.radius+1] = self.rwing_w
+            self.w[i + self.radius+1] = self.rwing_w
         self.w[self.radius] = self.center_w
         
-        return np.sum(self.w[:]*(self.data_target[self.ci0:self.ci1,1]-\
-                self.model_interp[:])**2)/np.sum(self.w)
+        return np.sum(self.w[:] * (self.data_target[self.ci0:self.ci1,1] - \
+                self.model_interp[:])**2) / np.sum(self.w)
 
-    def find(self,**kwargs):
+
+    # WARNING: the following is not PEP8 compliant yet
+    def find(self, **kwargs):
         
         # Number of points to try for each iteration
         if ('N' in kwargs):
