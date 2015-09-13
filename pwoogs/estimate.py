@@ -107,7 +107,7 @@ class vsini(object):
         with open('params.txt','w') as f:
             f.truncate()
             f.write(
-                'Parameter       Value 1         Value 2         Comment
+                '''Parameter       Value 1         Value 2         Comment
 l_limit         %.1f            %.1f            Lower limits: 1 = synthesis, 2 = plotting, angstrons
 u_limit         %.1f            %.1f            Upper limits: 1 = synthesis, 2 = plotting, angstrons
 synth_pars      0.01            2.0             1 = Step size of the synthesis, 2 = wavelength point to consider opacity contributions from neighboring transitions
