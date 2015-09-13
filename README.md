@@ -45,7 +45,7 @@ You can uninstall pwoogs simply by entering the following line on your terminal:
 Latest additions and corrections
 ------------
 
-* estimate.rotation now has a much faster, better and efficient find() routine
+* estimate.vsini.find() now has a minimum number of iterations (avoids falling in the first, not optimal, solution)
 * plotter now has an option to save plot as a file
 * started to correct codes for PEP0008 compliance
 * started adding assertions for defensive coding
@@ -67,4 +67,4 @@ To-do list
 Version
 ------------
 
-pwoogs 0.1 (Alpha) build 1508
+pwoogs 0.1 (Alpha) build 1509
