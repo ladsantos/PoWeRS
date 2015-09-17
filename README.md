@@ -69,4 +69,4 @@ To-do list
 Version
 ------------
 
-pwoogs 0.1 (Alpha) build 1509
+PoWeRS 0.1 (Alpha) build 1509
