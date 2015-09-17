@@ -4,14 +4,14 @@ except ImportError:
     from distutils.core import setup
 
 config = {
-    'description': 'pwoogs: python wrapper for MOOG synth',
+    'description': 'PoWeRS: Python WRapper for MOOG Synth',
     'author': 'Leonardo dos Santos',
-    'download_url': 'https://github.com/laugustogs/pwoogs',
+    'download_url': 'https://github.com/RogueAstro/PoWeRS',
     'author_email': 'leonardoags@usp.br',
-    'version': '0.1.150913',
+    'version': '0.1.150917',
     'install_requires': ['numpy','matplotlib'],
-    'packages': ['pwoogs'],
-    'name': 'pwoogs'
+    'packages': ['powers'],
+    'name': 'powers'
 }
 
 setup(**config)
