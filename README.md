@@ -45,10 +45,8 @@ You can uninstall PoWeRS simply by entering the following line on your terminal:
 Latest additions and corrections
 ------------
 
+* Corrected bug on estimate
 * Renamed project to PoWeRS, which is much more sexy
-* Corrected bug on utils.find_center which made it return nan values if the highest points were near the edges
-* estimate.vsini.find() now has a minimum number of iterations (avoids falling in the first, not optimal, solution)
-* plotter now has an option to save plot as a file
 * started to correct codes for PEP0008 compliance
 * started adding assertions for defensive coding
 
