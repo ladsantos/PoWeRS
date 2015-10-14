@@ -8,9 +8,11 @@ import numpy as np
 This code is used to plot the results produced by moog.py
 """
 
-
 class line(object):
 
+    """
+    Plots a spectral line.
+    """
 
     def __init__(self, params):
 
@@ -35,24 +37,33 @@ class line(object):
         self.data[:,1] = self.data[:,1] * self.ymult + self.yadd
 
 
-    # Function that finds the index of a target value inside an array arr
     def find_index(self, target, arr):
+
+        """
+        Function that finds the index of a target value inside an array.
+        """
         
         self.diff = np.abs(arr-target)
         self.index = np.where(self.diff == min(self.diff))[0][0]
         return self.index
 
 
-    # Function that sets the x-axis limits of the analysis
     def x_set_limits(self, start, end, data2d):
+
+        """
+        Function that sets the x-axis limits of the analysis.
+        """
         
         self.start_index = self.find_index(start, data2d[:,0])
         self.end_index = self.find_index(end, data2d[:,0])
         return data2d[self.start_index:self.end_index]
 
 
-    # The plotting function
     def plot(self, **kwargs):
+
+        """
+        The plotting function.
+        """
         
         # mode is set to plot on window by default. Any other value will
         # save a file with that value as name. For example: mode='plot.eps'
