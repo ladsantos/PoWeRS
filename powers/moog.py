@@ -14,6 +14,10 @@ of the spectrum, with many lines, is not advised.
 
 class driver(object):
     
+    """
+    Used to create the driver file for MOOG.
+    """
+    
     
     def __init__(self, params, **kwargs):
         
@@ -56,8 +60,11 @@ class driver(object):
         self.dam = params[8,0]
         
         
-    # Writes the MOOG driver file batch.par
     def create_batch(self):
+
+        """
+        Writes the MOOG driver file batch.par
+        """
         
         # Creating batch.par file
         with open('batch.par','w') as f:
@@ -98,6 +105,10 @@ class driver(object):
 
 class run(object):
 
+    """
+    Used to run MOOG silent.
+    """
+    
     
     def __init__(self, **kwargs):
         
