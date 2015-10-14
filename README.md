@@ -49,6 +49,7 @@ Latest additions and corrections
 * Renamed project to PoWeRS, which is much more sexy
 * started to correct codes for PEP0008 compliance
 * started adding assertions for defensive coding
+* started adding docstrings
 
 Known issues
 ------------
