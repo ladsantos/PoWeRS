@@ -325,6 +325,7 @@ abund           %i              %.5f'''
                 self.v_guess += 0.5-self.v_guess[0]
 
             else:
+                self.best_a += np.random.normal(scale=0.001)
                 self.a_guess = np.array([self.best_a-self.a_width/2,\
                     self.best_a+self.a_width/2])
 
