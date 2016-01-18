@@ -45,11 +45,10 @@ You can uninstall PoWeRS simply by entering the following line on your terminal:
 Latest additions and corrections
 ------------
 
-* Corrected bug on estimate
-* Renamed project to PoWeRS, which is much more sexy
 * started to correct codes for PEP0008 compliance
 * started adding assertions for defensive coding
 * started adding docstrings
+* estimate now supports two different paces for vsini and abundance
 
 Known issues
 ------------
