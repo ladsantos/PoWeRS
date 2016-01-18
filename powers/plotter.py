@@ -98,6 +98,8 @@ class line(object):
             )
         plt.xlabel(r'$\lambda$ ($\AA$)')
         plt.ylabel(r'$F_\lambda$ $d\lambda$')
+        plt.xlim(self.data_target[0,0],self.data_target[-1,0])
+        plt.tight_layout()
         
         if self.mode == 'window':
             plt.show()
