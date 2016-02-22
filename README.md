@@ -45,6 +45,7 @@ You can uninstall PoWeRS simply by entering the following line on your terminal:
 Latest additions and corrections
 ------------
 
+* a separated routine for rotational broadening
 * started to correct codes for PEP0008 compliance
 * started adding assertions for defensive coding
 * started adding docstrings
