@@ -30,8 +30,8 @@ class arr_manage(object):
         array.
         """
         
-        assert start > data2d[0,0], 'Invalid start value'
-        assert end < data2d[-1,0], 'Invalid end value'
+        assert start > data2d[0,0] or start == data2d[0,0], 'Invalid start value'
+        assert end < data2d[-1,0] or end == data2d[-1,0], 'Invalid end value'
         self.start_index = self.find_index(start,data2d[:,0])
         self.end_index = self.find_index(end,data2d[:,0])
         return data2d[self.start_index:self.end_index]
@@ -100,8 +100,8 @@ class arr_manage(object):
             self.ind -= radius
         self.stdev = np.std(data[self.ind-radius:self.ind+radius+1,1])
         if self.silent == False:
-            print 'Standard deviation of the spectrum on the ' \
-                  'selected data points = %.4f' % self.stdev
+            print('Standard deviation of the spectrum on the ' \
+                  'selected data points = %.4f' % self.stdev)
         return np.mean(data[self.ind-radius:self.ind+radius+1,1])
     
     def find_corr_from_ensemble(self,data,target_wls,radius):
