@@ -30,7 +30,8 @@ class arr_manage(object):
         array.
         """
         
-        assert start > data2d[0,0] or start == data2d[0,0], 'Invalid start value'
+        assert start > data2d[0,0] or \
+            start == data2d[0,0], 'Invalid start value'
         assert end < data2d[-1,0] or end == data2d[-1,0], 'Invalid end value'
         self.start_index = self.find_index(start,data2d[:,0])
         self.end_index = self.find_index(end,data2d[:,0])
@@ -82,9 +83,9 @@ class arr_manage(object):
     def find_corr(self,data,radius,**kwargs):
 
         """
-        This routine finds the multiplicative factor to correct the normalization
-        of a region of the spectrum, using the highest region (radius) of the
-        spectrum inside a section contained on data.
+        This routine finds the multiplicative factor to correct the 
+        normalization of a region of the spectrum, using the highest region 
+        (radius) of the spectrum inside a section contained on data.
         """
         
         # Do you want the program to be silent?
@@ -107,10 +108,10 @@ class arr_manage(object):
     def find_corr_from_ensemble(self,data,target_wls,radius):
 
         """
-        This routine finds the multiplicative factor to correct the normalization
-        of a region of the spectrum, using an ensemble of user defined points,
-        based on which the correction will be estimated around a region within
-        a radius of points.
+        This routine finds the multiplicative factor to correct the 
+        normalization of a region of the spectrum, using an ensemble of user 
+        defined points, based on which the correction will be estimated around a
+        region within a radius of points.
         """
         
         self.corrs = np.empty(len(target_wls),float)
