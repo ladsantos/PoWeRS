@@ -55,6 +55,7 @@ Known issues
 ------------
 
 * The code is not fully optimized and still needs polishing on handling files
+* Some places are terrible to read
 
 To-do list
 ------------
@@ -68,4 +69,4 @@ To-do list
 Version
 ------------
 
-PoWeRS 0.1 (Alpha) build 1509
+PoWeRS 0.1 (Alpha) build 1604
