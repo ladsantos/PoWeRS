@@ -110,7 +110,6 @@ class run(object):
     Used to run MOOG silent.
     """
 
-
     def __init__(self, **kwargs):
 
         # Do you want the silent version?
@@ -135,36 +134,45 @@ class run(object):
         self.params = np.genfromtxt('params.txt',usecols=(1,2), skip_header=1,
                                     missing_values='None', filling_values=0)
         self.d = driver(self.params).create_batch()
+        
+        # Running MOOGSILENT
         os.system('MOOGSILENT > moog.log 2>&1')
 
-        # Performing rotational broadening
+        # Grabing the synthetic spectrum
         self.synth_wl = np.loadtxt('vm_smooth.out',skiprows=2,usecols=(0,))
         self.synth_flux = np.loadtxt('vm_smooth.out',skiprows=2,usecols=(1,))
-        self.obs_flux = np.loadtxt('spectrum.dat', usecols=(1,))*self.params[10,1]
+        self.obs_flux = np.loadtxt('spectrum.dat', 
+                                   usecols=(1,))*self.params[10,1]
         self.obs_wl = np.loadtxt('spectrum.dat', usecols=(0,))+self.params[9,1]
         self.synth_wl, self.synth_flux, self.obs_wl, self.obs_flux = \
-            self.smart_cut(self.synth_wl, self.synth_flux, self.obs_wl, self.obs_flux)
+            self.smart_cut(self.synth_wl, self.synth_flux, self.obs_wl, 
+                           self.obs_flux)
 
+        # Finding the line info corresponding to the wavelength in question
         self.lines = np.loadtxt('lines.dat', usecols=(0,), skiprows=1)
         self.wl_0 = self.lines[np.where(
-            np.abs(self.lines-self.params[0,0])==np.min(np.abs(self.lines-self.params[0,0]))
+            np.abs(self.lines-self.params[0,0]) == \
+                np.min(np.abs(self.lines-self.params[0,0]))
             )[0][0]]
+        
         self.c = 2.998E5 # km/s
         self.synth_v = self.c*(self.synth_wl-self.wl_0)/self.wl_0
         self.obs_v = self.c*(self.obs_wl-self.wl_0)/self.wl_0
-        self.vsini_profile = self.rot_prof(self.params[13,1], self.synth_v, self.params[12,0])
+        
+        # The rotational profile
+        self.vsini_profile = self.rot_prof(self.params[13,1], 
+                                           self.synth_v, 
+                                           self.params[12,0])
+        
+        # Convolving the non-rotating spectrum with the rotational profile
         self.conv_flux = convolve1d(self.synth_flux, self.vsini_profile)
-        #self.ind = np.where(self.conv_flux == np.min(self.conv_flux[30:70]))[0][0]
-        #self.ind0 = np.where(self.synth_flux == np.min(self.synth_flux))[0][0]
-        #self.shift = self.synth_wl[self.ind0]-self.synth_wl[self.ind]
-        #self.M = len(self.conv_flux_0)
-        #self.what = -4
-        #self.conv_flux = self.conv_flux_0[self.M/4-self.what:3*self.M/4-self.what-1]
         with open('vm_smooth.out', 'w') as self.f:
             self.f.write('Smoothed spectrum\n')
             self.f.write('Do not mind this useless line\n')
             for i in range(len(self.conv_flux)):
-                self.f.write('  %.3f     %.5f\n' % (self.synth_wl[i], self.conv_flux[i]/max(self.conv_flux)))
+                self.f.write('  %.3f     %.5f\n' % (self.synth_wl[i],
+                                                    self.conv_flux[i]/\
+                                                        max(self.conv_flux)))
 
         # Plotting
         if self.silent == False:
@@ -172,23 +180,30 @@ class run(object):
                                                     star_name=self.name)
 
     def rot_prof(self, vsini, vz, epsilon):
+        
+        """
+        This function creates a rotational profile based on Gray (2005).
+        """
+        
         self.N = len(vz)
         self.prof = np.zeros(self.N,float)
         for i in range(self.N):
             if np.abs(vz[i]) < vsini:
                 self.prof[i] = (2.*(1.-epsilon)*(1-(vz[i]/vsini)**2)**0.5+\
-                    0.5*np.pi*epsilon*(1-(vz[i]/vsini)**2))/(np.pi*vsini*(1.-epsilon/3))
+                    0.5*np.pi*epsilon*(1-(vz[i]/vsini)**2))/(np.pi*vsini*\
+                        (1.-epsilon/3))
             else:
                 self.prof[i] = 0.0
         return self.prof
 
     def smart_cut(self, wl, flux, obs_wl, obs_flux):
+        
+        """
+        smart_cut() is used to prepare the synthetic spectrum for a convolution
+        with the rotational profile.
+        """
+        
         self.ind0 = np.where(flux == min(flux))[0][0]
-        #self.cut = 40
-        #wl = wl[self.ind0-self.cut:self.ind0+self.cut+1]
-        #flux = flux[self.ind0-self.cut:self.ind0+self.cut+1]
-        #obs_flux = obs_flux[self.ind0-self.cut:self.ind0+self.cut+1]
-        #obs_wl = obs_wl[self.ind0-self.cut:self.ind0+self.cut+1]
         self.N = len(wl)
         if self.ind0 < (self.N-1)/2:
             if (self.ind0+1) % 2 == 0:
