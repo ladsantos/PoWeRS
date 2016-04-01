@@ -154,7 +154,6 @@ abund           %i              %.5f'''
                                                 self.data)
 
         # Running MOOGSILENT
-        #self.write_params(np.log10(p[0]),p[1])
         self.write_params(p[0], p[1])
         m = moog.run(silent=True)
 
@@ -231,13 +230,19 @@ abund           %i              %.5f'''
         if ('limits' in kwargs):
             self.limits = kwargs['limits']
         else:
-            self.limits = np.array([0.1,0.001])
+            self.limits = np.array([0.01,0.001])
 
         # Plot the spectral line fit at the end?
         if ('plot' in kwargs):
             self.plot = kwargs['plot']
         else:
             self.plot = True
+            
+        # Lower limit of estimation of vsini
+        if ('v_low_limit' in kwargs):
+            self.v_low_limit = kwargs['v_low_limit']
+        else:
+            self.v_low_limit = 0.5
 
         # Set 'save' to a filename with an extension (e.g. png, eps)
         # Overrides 'plot' to False
@@ -260,7 +265,7 @@ abund           %i              %.5f'''
         self.best_v = np.mean(self.v_guess)
         self.it = 1
         self.finish = False
-        self.badfit_status = False
+        #self.badfit_status = False
 
         while self.finish == False and self.it < self.max_i:
 
@@ -291,7 +296,8 @@ abund           %i              %.5f'''
             self.v_change = np.abs(self.best_v-np.mean(self.v_guess))
             self.a_change = np.abs(self.best_a-np.mean(self.a_guess))
             if self.silent == False:
-                if self.v_change < self.limits[0] and self.a_change < self.limits[1] and self.it > self.min_i:
+                if self.v_change < self.limits[0] and self.a_change < \
+                    self.limits[1] and self.it > self.min_i:
                     self.finish = True
                     print "final iteration = %i" % self.it
                 else:
@@ -301,28 +307,34 @@ abund           %i              %.5f'''
                 print "best abund = %.3f (changed %.4f)\n" % \
                     (self.best_a,self.a_change)
             else:
-                if self.v_change < self.limits[0] and self.a_change < self.limits[1] and self.it > self.min_i:
+                if self.v_change < self.limits[0] and self.a_change < \
+                    self.limits[1] and self.it > self.min_i:
                     self.finish = True
 
             # Setting the new guess. If one of the best values are too near the
-            # edges of the previous guess, it will not narrow its new guess range
+            # edges of the previous guess, it will not narrow its new guess 
+            # range.
             self.v_width = self.v_guess[1]-self.v_guess[0]
             self.a_width = self.a_guess[1]-self.a_guess[0]
             if self.go_v == True:
-                self.v_guess = np.array([self.best_v-self.v_width/2/self.pace[0],\
-                    self.best_v+self.v_width/2/self.pace[0]])
+                self.v_guess = np.array([self.best_v-\
+                    self.v_width/2/self.pace[0], self.best_v+\
+                        self.v_width/2/self.pace[0]])
             else:
                 self.v_guess = np.array([self.best_v-self.v_width/2,\
                     self.best_v+self.v_width/2])
             if self.go_a == True:
-                self.a_guess = np.array([self.best_a-self.a_width/2/self.pace[1],\
-                    self.best_a+self.a_width/2/self.pace[1]])
+                self.a_guess = np.array([self.best_a-\
+                    self.a_width/2/self.pace[1], self.best_a+\
+                        self.a_width/2/self.pace[1]])
 
-            # Checking if the v_guess contains vsini lower than 0.5. If True,
-            # it will add a value to the array so that the lower limit is 0.5
-            if self.v_guess[0] < 0.5 and self.silent == False:
-                print "WARNING: vsini guess is less than 0.5. I will shift it."
-                self.v_guess += 0.5-self.v_guess[0]
+            # Checking if the v_guess contains vsini lower than v_low_limit. 
+            # If True, it will add a value to the array so that the lower limit 
+            # is equal to the v_low_limit
+            if self.v_guess[0] < self.v_low_limit and self.silent == False:
+                print "WARNING: vsini guess less than %.1f. I will shift it." \
+                    % self.v_low_limit
+                self.v_guess += self.v_low_limit-self.v_guess[0]
 
             else:
                 self.best_a += np.random.normal(scale=0.001)
@@ -347,16 +359,17 @@ abund           %i              %.5f'''
         else:
             m = moog.run(silent=True)
 
-        # Trigger bad fit warning
         self.S = self.perf(np.array([self.best_v,self.best_a]))
-        if self.check > self.badfit_tol:
-            self.badfit_status = True
-            if self.silent == False:
-                print """
-    It is possible that the estimation is bad. This is usually caused
-    by a slow-rotating star, line-blending, line center shift or bad continuum.
-    I suggest using a lower pace and more points, doing it manually or
-    discarding result for this particular line.
-                """
+        
+        # Trigger bad fit warning
+        #if self.check > self.badfit_tol:
+        #    self.badfit_status = True
+        #    if self.silent == False:
+        #        print """
+    #It is possible that the estimation is bad. This is usually caused
+    #by a slow-rotating star, line-blending, line center shift or bad continuum.
+    #I suggest using a lower pace and more points, doing it manually or
+    #discarding result for this particular line.
+    #            """
 
-        return self.best_v,self.best_a,self.badfit_status
+        return self.best_v,self.best_a
