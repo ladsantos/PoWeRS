@@ -1,11 +1,11 @@
-# pwoogs 0.1 (alpha) manual
+# powers 0.1 (alpha) manual
 
-pwoogs is a Python wrapper for MOOG synth, an application widely used in astronomy for synthesis of spectral lines. I recently started working on this after being fed up with the usual interface and plotting of MOOG. The code is very bare at the moment, but I'll be working on improving it, adding more features and a proper documentation as time goes on. pwoogs is written for Python 2.7 and MOOG version jul2014.
+powers is a Python wrapper for MOOG synth, an application widely used in astronomy for synthesis of spectral lines. I recently started working on this after being fed up with the usual interface and plotting of MOOG. The code is very bare at the moment, but I'll be working on improving it, adding more features and a proper documentation as time goes on. powers is written for Python 2.7 and MOOG version jul2014.
 
 Dependencies
 ------------
 
-These are the required programs/packages to run pwoogs:
+These are the required programs/packages to run powers:
 
 * Python 2.7
 * MOOG silent (therefore, also superMONGO, Fortran and C compilers)
@@ -14,7 +14,7 @@ These are the required programs/packages to run pwoogs:
 
 These other programs/packages are highly recommended:
 
-* pip: used to (un-)install pwoogs
+* pip: used to (un-)install powers
 * makekurucz2004: used to create interpolations of the atmosphere models from Castelli & Kurucz 2004. I'm looking at the availability of this program. More info in the next versions of this manual.
 
 Installation
@@ -24,7 +24,7 @@ Once you have the dependencies installed, you should declare the path of the MOO
 
     PATH=/whatever/path/you/installed/moogjul2014:$PATH
 
-In order to install pwoogs, download it and run the setup:
+In order to install powers, download it and run the setup:
  
     python setup.py install
     
@@ -39,12 +39,12 @@ You should start your python environment inside a folder containing the followin
 * sun_syn.lin: file containing a line lists. More info about this in the next versions of the manual.
 * params.txt: file containing the input parameters for MOOG, organized in a readable manner. Check the file inside the example folder. More info about this in the next versions of the manual.
 
-Inside the python environment, pwoogs can be run using the following commands:
+Inside the python environment, powers can be run using the following commands:
 
-    from pwoogs import moog
+    from powers import moog
     m = moog.run()
     
-You can also run pwoogs in silent mode by setting the option silent=True when running it, like so:
+You can also run powers in silent mode by setting the option silent=True when running it, like so:
 
     m = moog.run(silent=True)
     
@@ -109,4 +109,4 @@ A correct installation of SM on an Ubuntu-14.04-based Linux distribution should 
 
     make -f Makefile.rh64silent
     
-Remember to declare the MOOG path in your bash profile, and if you type MOOGSILENT on your command line, you should get MOOG running with no errors. If everything went right, pwoogs should be working well.
+Remember to declare the MOOG path in your bash profile, and if you type MOOGSILENT on your command line, you should get MOOG running with no errors. If everything went right, powers should be working well.
