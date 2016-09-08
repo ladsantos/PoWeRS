@@ -8,8 +8,8 @@ config = {
     'author': 'Leonardo dos Santos',
     'download_url': 'https://github.com/RogueAstro/PoWeRS',
     'author_email': 'leonardoags@usp.br',
-    'version': '0.1.160401',
-    'install_requires': ['numpy', 'matplotlib'],
+    'version': '0.1.160908',
+    'install_requires': ['numpy', 'matplotlib', 'scipy'],
     'packages': ['powers'],
     'name': 'powers'
 }
