@@ -4,16 +4,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-"""
-This code is used to plot the results produced by moog.py
-"""
 
-class line(object):
-
+class Line(object):
     """
     Plots a spectral line.
     """
-
     def __init__(self, params):
 
         # Modelling parameters
