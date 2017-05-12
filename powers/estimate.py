@@ -3,7 +3,7 @@
 
 import numpy as np
 import time
-from powers import plotter,moog,utils
+from powers import moog, utils
 
 """
 This code is used to estimate the projected rotation speed of a star given a
